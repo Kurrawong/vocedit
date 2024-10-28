@@ -17,12 +17,12 @@ jobs:
         with:
           repository: Kurrawong/shacl-ui
           ref: 88aacd31772ba9382266743f7a904b4f21673d2b
-          path: shacl-ui
+          path: ${{ github.workspace }}/shacl-ui
 
       - name: Checkout main repository
         uses: actions/checkout@v4
         with:
-          path: main
+          path: ${{ github.workspace }}/main
 
       - uses: pnpm/action-setup@v4
         with:
@@ -35,26 +35,26 @@ jobs:
           node-version: 20
 
       - name: Install shacl-ui dependencies
-        working-directory: shacl-ui
+        working-directory: ${{ github.workspace }}/shacl-ui
         run: pnpm install
 
       - name: Build shacl-ui
-        working-directory: shacl-ui
+        working-directory: ${{ github.workspace }}/shacl-ui
         run: pnpm build-only
 
       - name: Install main project dependencies
-        working-directory: main
+        working-directory: ${{ github.workspace }}/main
         run: pnpm install
 
       - name: Build main project
-        working-directory: main
+        working-directory: ${{ github.workspace }}/main
         run: pnpm build-only
 
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: main/dist/
+          path: ${{ github.workspace }}/main/dist/
 
   # Deploy job
   deploy:
