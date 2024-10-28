@@ -35,14 +35,11 @@ jobs:
           node-version: 20
 
       - name: Install shacl-ui dependencies
-        working-directory: ${{ github.workspace }}/shacl-ui
-        run: |
-          ls -la
-          cd ${{ github.workspace }}/shacl-ui
-          pnpm install
+        working-directory: ${{ github.workspace }}/shacl-ui/js
+        run: pnpm install
 
       - name: Build shacl-ui
-        working-directory: ${{ github.workspace }}/shacl-ui
+        working-directory: ${{ github.workspace }}/shacl-ui/js
         run: pnpm build-only
 
       - name: Install main project dependencies
