@@ -12,8 +12,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your repository using git
+      - name: Checkout shacl-ui repository
         uses: actions/checkout@v3
+        with:
+          repository: Kurrawong/shacl-ui
+          path: shacl-ui
+
+      - name: Checkout main repository
+        uses: actions/checkout@v3
+        with:
+          path: main
 
       - uses: pnpm/action-setup@v4
         with:
@@ -26,17 +34,27 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Install shacl-ui dependencies
+        working-directory: shacl-ui
         run: pnpm install
 
-      - name: Build
+      - name: Build shacl-ui
+        working-directory: shacl-ui
+        run: pnpm build-only
+
+      - name: Install main project dependencies
+        working-directory: main
+        run: pnpm install
+
+      - name: Build main project
+        working-directory: main
         run: pnpm build-only
 
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/
+          path: main/dist/
 
   # Deploy job
   deploy:

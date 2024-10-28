@@ -13,11 +13,22 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@comunica/query-sparql": "^4.0.2",
+    "@hydrofoil/shape-to-query": "^0.13.1",
+    "@rdfjs/dataset": "^2.0.2",
     "@xstate/vue": "^3.1.4",
+    "clownface": "^2.0.2",
+    "grapoi": "^1.1.2",
     "n3": "^1.22.3",
+    "primeicons": "^7.0.0",
     "primevue": "3",
-    "shacl-ui": "link:/Users/edmondchuc/kurrawong/shacl-ui/js",
+    "rdf-ext": "^2.5.2",
+    "shacl-engine": "^1.0.1",
+    "shacl-ui": "link:../shacl-ui/js",
+    "sparqljs": "^3.7.3",
+    "uuid": "^11.0.1",
     "vue": "^3.5.12",
+    "vue-codemirror": "^6.1.1",
     "vue-router": "^4.4.5",
     "xstate": "^5.18.2"
   },
