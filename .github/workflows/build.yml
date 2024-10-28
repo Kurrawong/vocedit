@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout shacl-ui repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: Kurrawong/shacl-ui
           ref: 88aacd3
           path: shacl-ui
 
       - name: Checkout main repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: main
 
