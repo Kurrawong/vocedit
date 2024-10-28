@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Kurrawong/shacl-ui
-          ref: 88aacd3
+          ref: 88aacd31772ba9382266743f7a904b4f21673d2b
           path: shacl-ui
 
       - name: Checkout main repository
