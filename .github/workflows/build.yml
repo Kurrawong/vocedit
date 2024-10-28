@@ -36,7 +36,10 @@ jobs:
 
       - name: Install shacl-ui dependencies
         working-directory: ${{ github.workspace }}/shacl-ui
-        run: pnpm install
+        run: |
+          ls -la
+          cd ${{ github.workspace }}/shacl-ui
+          pnpm install
 
       - name: Build shacl-ui
         working-directory: ${{ github.workspace }}/shacl-ui
