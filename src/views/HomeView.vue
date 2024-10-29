@@ -17,11 +17,21 @@ onMounted(() => {
     <template v-if="isSupported">
       <h2 class="text-xl">Getting Started</h2>
       <p>
+        <span class="font-bold">VocEdit</span> is a tool for creating and
+        editing controlled vocabularies stored on your local filesystem in the
+        browser.
+      </p>
+      <p>
         Use the project menu to create a new vocabulary or open an existing file
         on your filesystem.
       </p>
     </template>
     <template v-else>
+      <h2 class="text-xl">VocEdit</h2>
+      <p>
+        VocEdit is a tool for creating and editing controlled vocabularies
+        stored on your local filesystem in the browser.
+      </p>
       <Message severity="error" :closable="false"
         >VocPub is not supported in your browser.</Message
       >
