@@ -30,7 +30,9 @@ const resourceType = computed(() => {
 })
 const nodeShapeTerm = computed(() => {
   if (resourceType.value === 'ConceptScheme') {
-    return namedNode('https://w3id.org/profile/vocpub/validator/Shui-ConceptScheme')
+    return namedNode(
+      'https://w3id.org/profile/vocpub/validator/Shui-ConceptScheme',
+    )
   }
   return namedNode('https://w3id.org/profile/vocpub/validator/Shui-Concept')
 })

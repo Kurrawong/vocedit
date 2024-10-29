@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, onMounted } from 'vue'
 import Menubar from 'primevue/menubar'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
@@ -21,6 +21,15 @@ provideVocPubMachine(snapshot, send)
 
 const data = computed(() => snapshot.value.context)
 const filename = ref<string | null>(null)
+
+const isSupported = ref(false)
+
+onMounted(() => {
+  if (window.showOpenFilePicker) {
+    isSupported.value = true
+    console.log(window.showOpenFilePicker)
+  }
+})
 
 watch(
   () => data.value.fileHandle,
@@ -112,7 +121,7 @@ const menubarItems = computed(() => {
 
 <template>
   <div class="space-y-1 max-w-[120rem]">
-    <Menubar :model="menubarItems">
+    <Menubar v-if="isSupported" :model="menubarItems">
       <template v-slot:end>
         <span v-if="filename" class="pr-4">
           {{ filename }}

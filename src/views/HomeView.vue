@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import Message from 'primevue/message'
 
 const isSupported = ref(false)
 
@@ -15,10 +16,16 @@ onMounted(() => {
   <div class="p-4 space-y-2">
     <template v-if="isSupported">
       <h2 class="text-xl">Getting Started</h2>
-      <p>Use the menu to open a VocPub vocabulary file on your filesystem.</p>
+      <p>
+        Use the project menu to create a new vocabulary or open an existing file
+        on your filesystem.
+      </p>
     </template>
     <template v-else>
-      <h2 class="text-xl">VocPub is not supported in your browser.</h2>
+      <Message severity="error" :closable="false"
+        >VocPub is not supported in your browser.</Message
+      >
+      <p>Please try the application in Chrome.</p>
       <p>
         VocPub requires the
         <a
@@ -26,6 +33,10 @@ onMounted(() => {
           href="https://developer.mozilla.org/en-US/docs/Web/API/Window/showOpenFilePicker"
           >Window: showOpenFilePicker() method</a
         >, which is not supported in your browser.
+      </p>
+      <p>
+        A future version of VocEdit will support all modern browsers using a
+        polyfill.
       </p>
     </template>
   </div>

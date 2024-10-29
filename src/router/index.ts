@@ -9,12 +9,12 @@ const routes = [
   { path: '/', component: HomeView },
   { path: '/edit', component: OpenedHomeView },
   { path: '/edit/resource', component: ResourceView, name: 'resource' },
-  { path: '/new-project', component: NewProjectView }
+  { path: '/new-project', component: NewProjectView },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 export default router
