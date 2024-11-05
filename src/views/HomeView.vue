@@ -17,7 +17,7 @@ onMounted(() => {
     <h2 class="text-xl">VocEdit</h2>
     <p>
       VocEdit is a versatile and user-friendly webform tool for creating and editing
-      controlled vocabularies based on the <a class="green" href="https://w3id.org/profile/vocpub">VocPub Profile of SKOS</a>.
+      controlled vocabularies based on the <a href="https://w3id.org/profile/vocpub" class="underline">VocPub Profile of SKOS</a>.
       It empowers users to design, manage, and organize
       both flat and hierarchical concept structures within vocabularies. With
       straightforward save and load functionality, VocEdit integrates seamlessly
