@@ -1,18 +1,8 @@
-# vocedit
+# VocEdit
 
-This template should help get you started developing with Vue 3 in Vite.
+VocEdit is a versatile and user-friendly webform tool for creating and editing controlled vocabularies based on the [VocPub Profile of SKOS](https://w3id.org/profile/vocpub). It empowers users to design, manage, and organize both flat and hierarchical concept structures within vocabularies. With straightforward save and load functionality, VocEdit integrates seamlessly with the local filesystem, making it easy to maintain vocabulary files directly on your device without you having to dive into the underlying technical data.
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+This tool is available for use online at https://vocedit.dev.kurrawong.ai.
 
 ## Project Setup
 
