@@ -48,10 +48,4 @@ async function handleSaveAs() {
 </script>
 
 <template>
-  <h1 class="text-3xl font-bold">Home</h1>
-  <button class="bg-blue-500 text-white p-2 rounded-md" @click="handleClick">Open file</button>
-  <button class="bg-blue-500 text-white p-2 rounded-md" @click="handleSave">Save file</button>
-  <button class="bg-blue-500 text-white p-2 rounded-md" @click="handleSaveAs">Save as</button>
-
-  <textarea v-if="content" v-model="content" class="w-full h-screen" />
 </template>
