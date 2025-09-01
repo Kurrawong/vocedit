@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes, Ref } from 'vue'
-import { defaultDocument, useEventListener, useMediaQuery, useVModel } from '@vueuse/core'
+import { useEventListener, useMediaQuery, useVModel } from '@vueuse/core'
 import { TooltipProvider } from 'reka-ui'
 import { computed, ref } from 'vue'
 import { cn } from '@/lib/utils'
@@ -20,7 +20,7 @@ const props = withDefaults(
     class?: HTMLAttributes['class']
   }>(),
   {
-    defaultOpen: !defaultDocument?.cookie.includes(`${SIDEBAR_COOKIE_NAME}=false`),
+    defaultOpen: true,
     open: undefined,
   },
 )

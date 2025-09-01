@@ -13,7 +13,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 </script>
 
 <template>
-  <SidebarProvider>
+  <SidebarProvider default-open>
     <AppSidebar />
     <SidebarInset>
       <header class="flex h-16 shrink-0 items-center gap-2">
