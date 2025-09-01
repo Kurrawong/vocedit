@@ -58,6 +58,20 @@ const mainNav = [
       {
         title: 'History',
         url: '#',
+        items: [
+          {
+            title: 'Test 1',
+            url: '#',
+          },
+          {
+            title: 'Test 2',
+            url: '#',
+          },
+          {
+            title: 'Test 3',
+            url: '#',
+          },
+        ],
       },
       {
         title: 'Starred',
