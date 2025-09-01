@@ -8,7 +8,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
   <SidebarProvider default-open>
     <AppSidebar />
     <SidebarInset>
-      <slot />
+      <slot name="header" />
 
       <header class="flex h-16 shrink-0 items-center gap-2">
         <div class="flex items-center gap-2 px-4">
@@ -17,13 +17,8 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
           <Separator orientation="vertical" class="mr-2 h-4" />
         </div>
       </header>
-      <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div
-          class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min flex items-center justify-center"
-        >
-          <span class="text-sm text-muted-foreground italic">Use the menu bar to get started</span>
-        </div>
-      </div>
+
+      <slot />
     </SidebarInset>
   </SidebarProvider>
 </template>

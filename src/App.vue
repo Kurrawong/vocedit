@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import { createResourceManager } from '@kurrawongai/shacl-ui'
 import { createVocEditMachine } from '@/composables/vocedit-machine'
 import AppMenubar from '@/components/AppMenubar.vue'
@@ -12,20 +12,15 @@ const state = computed(() => snapshot.value)
 </script>
 
 <template>
-  <!-- <header>
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header> -->
-
   <Main>
-    <AppMenubar />
-    <pre>{{ state.context.resourceManager.dataGraph.value.size }}</pre>
-    <pre>{{ state.value }}</pre>
-  </Main>
+    <template #header>
+      <AppMenubar />
+      <div class="px-5 py-3">
+        <pre>{{ state.context.resourceManager.dataGraph.value.size }}</pre>
+        <pre>{{ state.value }}</pre>
+      </div>
+    </template>
 
-  <RouterView />
+    <RouterView />
+  </Main>
 </template>
