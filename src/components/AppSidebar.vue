@@ -16,7 +16,6 @@ const resourceManager = useResourceManagerContext()
 const { snapshot } = useVocEditMachine()
 
 const vocabularies = computed(() => {
-  const label = 'Vocabularies'
   const items = resourceManager.dataGraph.value
     .getSubjects(rdf.type, skos.ConceptScheme, null)
     .map((conceptScheme) => {
@@ -31,10 +30,26 @@ const vocabularies = computed(() => {
       }
     })
 
-  return {
-    label,
-    items,
-  }
+  return items
+})
+
+const collections = computed(() => {
+  // TODO: Add collections listing
+  return []
+})
+
+const concepts = computed(() => {
+  const items = resourceManager.dataGraph.value
+    .getSubjects(rdf.type, skos.Concept, null)
+    .map((concept) => {
+      const [label] = resourceManager.dataGraph.value.getObjects(concept, skos.prefLabel, null)
+      return {
+        title: label.value || concept.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        url: `/resource?iri=${concept.value}`,
+      }
+    })
+
+  return items
 })
 </script>
 
@@ -53,9 +68,9 @@ const vocabularies = computed(() => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarList :items="vocabularies.items" :label="vocabularies.label" />
-              <SidebarList label="Collections" :items="[]" />
-              <SidebarList label="Concepts" :items="[]" />
+              <SidebarList label="Vocabularies" :items="vocabularies" />
+              <SidebarList label="Collections" :items="collections" />
+              <SidebarList label="Concepts" :items="concepts" />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

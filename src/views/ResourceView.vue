@@ -7,7 +7,7 @@ import n3 from 'n3'
 import { ResourceShell } from '@kurrawongai/shacl-ui'
 
 const route = useRoute()
-const iri = route.query.iri as string
+const iri = computed(() => route.query.iri as string)
 const router = useRouter()
 const { namedNode } = n3.DataFactory
 
@@ -17,7 +17,7 @@ watch(
   () => snapshot.value.matches('opened'),
   (matches) => {
     console.log('matches', matches)
-    if (!matches || !iri) {
+    if (!matches || !iri.value) {
       router.push('/')
     }
   },
@@ -25,7 +25,7 @@ watch(
 )
 
 // Get the class types of the resource and use it to render the correct view.
-const focusNode = computed(() => namedNode(iri))
+const focusNode = computed(() => namedNode(iri.value))
 const nodeShape = computed(() => {
   // if class type is a concept scheme
   return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-ConceptScheme')

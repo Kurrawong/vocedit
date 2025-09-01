@@ -1348,7 +1348,7 @@ packages:
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
   '@kurrawongai/shacl-ui@file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz':
-    resolution: {integrity: sha512-AvXys13BDg8oNh6zCvsP1jzFbKvMSoiWNiXY5oCTARC2vo1GtPBLifbW7PSh8Wj4ukH+njUwnyvth9xbVsYZOQ==, tarball: file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz}
+    resolution: {integrity: sha512-UM5+Jy0H53u7darOG7pDltxlDIbwGxN/T6z0+UXFeNRJHgl6sxXWzfA7tS/G6xNdqfPpq0nWkOKN3Rt72Z5Sfg==, tarball: file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz}
     version: 0.3.0
     peerDependencies:
       vue: ^3.5.18
