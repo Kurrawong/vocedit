@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { Calendar, Home, Inbox, Search, Settings } from 'lucide-vue-next'
+import {
+  BookOpen,
+  Bot,
+  Calendar,
+  Home,
+  Inbox,
+  Search,
+  Settings,
+  Settings2,
+  SquareTerminal,
+} from 'lucide-vue-next'
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import NavTree from '@/components/NavTree.vue'
 
 // Menu items.
 const items = [
@@ -39,23 +47,105 @@ const items = [
     icon: Settings,
   },
 ]
+
+const mainNav = [
+  {
+    title: 'Playground',
+    url: '#',
+    icon: SquareTerminal,
+    isActive: false,
+    items: [
+      {
+        title: 'History',
+        url: '#',
+      },
+      {
+        title: 'Starred',
+        url: '#',
+      },
+      {
+        title: 'Settings',
+        url: '#',
+      },
+    ],
+  },
+  {
+    title: 'Models',
+    url: '#',
+    icon: Bot,
+    items: [
+      {
+        title: 'Genesis',
+        url: '#',
+      },
+      {
+        title: 'Explorer',
+        url: '#',
+      },
+      {
+        title: 'Quantum',
+        url: '#',
+      },
+    ],
+  },
+  {
+    title: 'Documentation',
+    url: '#',
+    icon: BookOpen,
+    items: [
+      {
+        title: 'Introduction',
+        url: '#',
+      },
+      {
+        title: 'Get Started',
+        url: '#',
+      },
+      {
+        title: 'Tutorials',
+        url: '#',
+      },
+      {
+        title: 'Changelog',
+        url: '#',
+      },
+    ],
+  },
+  {
+    title: 'Settings',
+    url: '#',
+    icon: Settings2,
+    items: [
+      {
+        title: 'General',
+        url: '#',
+      },
+      {
+        title: 'Team',
+        url: '#',
+      },
+      {
+        title: 'Billing',
+        url: '#',
+      },
+      {
+        title: 'Limits',
+        url: '#',
+      },
+    ],
+  },
+]
 </script>
 
 <template>
   <Sidebar>
     <SidebarContent>
       <SidebarGroup>
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in items" :key="item.title">
-              <SidebarMenuButton asChild>
-                <a :href="item.url">
-                  <component :is="item.icon" />
-                  <span>{{ item.title }}</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <NavTree label="Vocabularies" :items="[]" />
+            <NavTree label="Collections" :items="[]" />
+            <NavTree label="Concepts" :items="mainNav" />
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
