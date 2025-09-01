@@ -5,6 +5,7 @@ import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { useRouter } from 'vue-router'
 import n3 from 'n3'
 import { ResourceShell, useResourceManagerContext } from '@kurrawongai/shacl-ui'
+import { rdf, skos } from '@/namespaces'
 
 const route = useRoute()
 const iri = computed(() => route.query.iri as string)
@@ -31,9 +32,19 @@ watch(
 
 const focusNode = computed(() => namedNode(iri.value))
 const nodeShape = computed(() => {
-  // TODO: Get the class type of the resource
-  // if class type is a concept scheme
-  return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-ConceptScheme')
+  const classes = resourceManager.dataGraph.value.getObjects(focusNode.value, rdf.type, null)
+
+  for (const cls of classes) {
+    if (cls.equals(skos.ConceptScheme)) {
+      return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-ConceptScheme')
+    } else if (cls.equals(skos.Collection)) {
+      return null
+    } else if (cls.equals(skos.Concept)) {
+      return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-Concept')
+    }
+  }
+
+  return null
 })
 </script>
 
