@@ -11,6 +11,9 @@ importers:
       '@kurrawongai/shacl-ui':
         specifier: file:/Users/edmondchuc/kurrawong/shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz
         version: file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz(@rdfjs/types@2.0.1)(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))(web-streams-polyfill@3.3.3)
+      '@types/rdf-ext':
+        specifier: ^2.5.2
+        version: 2.5.2
       '@vueuse/core':
         specifier: ^13.7.0
         version: 13.7.0(vue@3.5.18(typescript@5.8.3))
@@ -29,6 +32,9 @@ importers:
       n3:
         specifier: ^1.26.0
         version: 1.26.0
+      rdf-ext:
+        specifier: 2.5.2
+        version: 2.5.2(web-streams-polyfill@3.3.3)
       reka-ui:
         specifier: ^2.4.1
         version: 2.4.1(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))
@@ -1285,8 +1291,8 @@ packages:
   '@floating-ui/vue@1.1.9':
     resolution: {integrity: sha512-BfNqNW6KA83Nexspgb9DZuz578R7HT8MZw1CfK9I6Ah4QReNWEJsXWHN+SdmOVLNGmTPDi+fDT535Df5PzMLbQ==}
 
-  '@formkit/auto-animate@0.8.2':
-    resolution: {integrity: sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==}
+  '@formkit/auto-animate@0.8.4':
+    resolution: {integrity: sha512-DHHC01EJ1p70Q0z/ZFRBIY8NDnmfKccQoyoM84Tgb6omLMat6jivCdf272Y8k3nf4Lzdin/Y4R9q8uFtU0GbnA==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1342,7 +1348,7 @@ packages:
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
   '@kurrawongai/shacl-ui@file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz':
-    resolution: {integrity: sha512-BTkLOAgmnXuJachL7efJIty14/F7ny5BIIn0JOEWzJ0g7YuNjQU/Orx9AW6fKvLqQ0W7LiNhbNbjoQ/1D5RgZQ==, tarball: file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz}
+    resolution: {integrity: sha512-AvXys13BDg8oNh6zCvsP1jzFbKvMSoiWNiXY5oCTARC2vo1GtPBLifbW7PSh8Wj4ukH+njUwnyvth9xbVsYZOQ==, tarball: file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz}
     version: 0.3.0
     peerDependencies:
       vue: ^3.5.18
@@ -1838,6 +1844,9 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
+  '@types/jsonld@1.5.15':
+    resolution: {integrity: sha512-PlAFPZjL+AuGYmwlqwKEL0IMP8M8RexH0NIPGfCVWSQ041H2rR/8OlyZSD7KsCVoN8vCfWdtWDBxX8yBVP+xow==}
+
   '@types/minimist@1.2.5':
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
@@ -1850,8 +1859,62 @@ packages:
   '@types/node@22.17.2':
     resolution: {integrity: sha512-gL6z5N9Jm9mhY+U2KXZpteb+09zyffliRkZyZOHODGATyC5B1Jt/7TzuuiLkFsSUMLbS1OLmlj/E+/3KF4Q/4w==}
 
+  '@types/rdf-ext@2.5.2':
+    resolution: {integrity: sha512-eakFuYRoVYSsibttnJGU0+UaWNBdhXR1z5iwxKCUdI6vzBmRy2UqO1tuhpaDfnCggZxKmBpcKP+SxCh1jd0gsg==}
+
+  '@types/rdfjs__data-model@2.0.9':
+    resolution: {integrity: sha512-rgQSlM9jr7XMZdC0xUIr0zsxf5FvdB4cxxzv+MlHm6uJGip5qi0q+BluNhakAzaM2I56nKLDqSE3I/XuOaHGnA==}
+
+  '@types/rdfjs__dataset@2.0.7':
+    resolution: {integrity: sha512-+GaYIL9C7N1N0HyH+obU4IXuL7DX+fXuf827aUQ2Vx2UghO47+OTxo2v3seEQj/1YHoHBfQFk5Y4P6Q7Ht4Hqw==}
+
+  '@types/rdfjs__environment@1.0.0':
+    resolution: {integrity: sha512-MDcnv3qfJvbHoEpUQXj5muT8g3e+xz1D8sGevrq3+Q4TzeEvQf5ijGX5l8485XFYrN/OBApgzXkHMZC04/kd5w==}
+
+  '@types/rdfjs__fetch-lite@3.0.11':
+    resolution: {integrity: sha512-1bHxBn62bmTPq/HY9Jr+iKCdBp8RTEJ4WA0ycihghRF8zWQfw6T7E5CqdPi4nncmgF70LOz7jF/4jeLGdb6H2A==}
+
+  '@types/rdfjs__formats@4.0.1':
+    resolution: {integrity: sha512-Zj7hQEn5HeCj+pJCWshY2gqBcdBdwyc2j20Ht3PH91pkdRuG2AlGDD3N9PQ1oZ3+J6Q96rAlhxUbjQUp9+s3FQ==}
+
   '@types/rdfjs__namespace@2.0.10':
     resolution: {integrity: sha512-xoVzEIOxcpyteEmzaj94MSBbrBFs+vqv05joMhzLEiPRwsBBDnhkdBCaaDxR1Tf7wOW0kB2R1IYe4C3vEBFPgA==}
+
+  '@types/rdfjs__parser-jsonld@2.1.7':
+    resolution: {integrity: sha512-n35K+c1Y95580N202Jxly6xjFE953FF+Y2mwxok6zLfMo4rgIfgMBElnNwpja0IeYXTuzGm1tEz7va3lItGrTg==}
+
+  '@types/rdfjs__parser-n3@2.0.6':
+    resolution: {integrity: sha512-VHfdq7BDV6iMCtHkzTFSOuUWnqGlMUmEF0UZyK4+g9SzLWvc6TMcU5TYwQPQIz/e0s7dZ+xomxx6mVtIzsRQ/A==}
+
+  '@types/rdfjs__prefix-map@0.1.5':
+    resolution: {integrity: sha512-RAwyS/2dT9X79QwM0F8KLweTfuBoe6xtiAlU7wKPB+/t/sfk6A50LYtAWaDVP5qBjcu50UkKkZT+VR47CiLkfg==}
+
+  '@types/rdfjs__score@0.1.6':
+    resolution: {integrity: sha512-TZZaI0PntOUnfA6vKsVlgeYuyiGvtlMygu0ycmmFn5quldbDWzIIxadciTIaBQBcPXmJHcnXiS8/mbZ9FkX4hQ==}
+
+  '@types/rdfjs__serializer-jsonld-ext@4.0.1':
+    resolution: {integrity: sha512-jgbQ/1kV7nESKG7SY8FJED6K4OFznr6Sz3ybF1ncpBR7TUBTuy3InpZOVRK4Wjpy2zi84iIAzJ1CIIo9NZh2Xw==}
+
+  '@types/rdfjs__serializer-jsonld@2.0.5':
+    resolution: {integrity: sha512-ubdLD9QgZzAt+65NSPzh2qWCPWcGYlHEWgkP6uRwfm7JC48Xh/QjzwOTG13MTomOkQqcN4R7PIG0j3Ca8iyNWQ==}
+
+  '@types/rdfjs__serializer-ntriples@2.0.6':
+    resolution: {integrity: sha512-Nn3e3eyuymLvbI5MFzI7ODD/X6ZGpbB9fLaWOB00RtFHd2vttk3wQL2fzzsZZQPJ/ihC/xlFE4cNQkO6SoHa7w==}
+
+  '@types/rdfjs__serializer-turtle@1.1.0':
+    resolution: {integrity: sha512-NGHnbz5985UwS/YS6WL/FkS94B+QiVTdsfvJCqPwLmY3E7UeClw91c2KbiphZUR/uh7uwLwxeKKhV2T1gYgT5Q==}
+
+  '@types/rdfjs__sink-map@2.0.5':
+    resolution: {integrity: sha512-ycUBlOMbp9YpjrBrMwGv3uiqulOWgodess06cinYLxomOTc2ET9rEQklgM5rJqnu5WMsVP8SFG3fFw36/5hADQ==}
+
+  '@types/rdfjs__term-map@2.0.10':
+    resolution: {integrity: sha512-YlpYkya+Xq9fmcw+BMi1SCh+w2sBu7G0/qd2+ZhB4QIK3V1xq2o3EOAZnlahyQdwrW9t5+Ihw8IVVvZsJvDOTA==}
+
+  '@types/rdfjs__term-set@2.0.9':
+    resolution: {integrity: sha512-RRXs5DwFGanZyT705f7KLSiN68gUVUtGWTp508CXJhLfD7AWmilqc1BLgLUoac48h3pnh9w5lRhwFm6fj1ZE5Q==}
+
+  '@types/rdfjs__traverser@0.1.5':
+    resolution: {integrity: sha512-tTpiM6lAddw+bGRDjhzwdpo1EQK73m8gYgMVNfO4OsevnuLZvQJeCJBckpuDC4H5HVAEwCapI0UlH9dVnZ9u5g==}
 
   '@types/readable-stream@2.3.15':
     resolution: {integrity: sha512-oM5JSKQCcICF1wvGgmecmHldZ48OZamtMxcGGVICOJA8o8cahXC1zEVAif8iwoc5j8etxFaRFnf095+CDsuoFQ==}
@@ -6777,7 +6840,7 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@formkit/auto-animate@0.8.2': {}
+  '@formkit/auto-animate@0.8.4': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -6839,7 +6902,7 @@ snapshots:
   '@kurrawongai/shacl-ui@file:../shacl-ui/shacl-ui/kurrawongai-shacl-ui-0.3.0.tgz(@rdfjs/types@2.0.1)(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))(web-streams-polyfill@3.3.3)':
     dependencies:
       '@comunica/query-sparql-rdfjs-lite': 4.3.0
-      '@formkit/auto-animate': 0.8.2
+      '@formkit/auto-animate': 0.8.4
       '@internationalized/date': 3.9.0
       '@rdfjs/term-set': 2.0.3
       '@vocabulary/dash': 1.0.5(@rdfjs/types@2.0.1)
@@ -7293,6 +7356,8 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/jsonld@1.5.15': {}
+
   '@types/minimist@1.2.5': {}
 
   '@types/n3@1.26.0':
@@ -7308,7 +7373,107 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/rdf-ext@2.5.2':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/rdfjs__data-model': 2.0.9
+      '@types/rdfjs__dataset': 2.0.7
+      '@types/rdfjs__environment': 1.0.0
+      '@types/rdfjs__fetch-lite': 3.0.11
+      '@types/rdfjs__formats': 4.0.1
+      '@types/rdfjs__namespace': 2.0.10
+      '@types/rdfjs__prefix-map': 0.1.5
+      '@types/rdfjs__score': 0.1.6
+      '@types/rdfjs__term-map': 2.0.10
+      '@types/rdfjs__term-set': 2.0.9
+      '@types/rdfjs__traverser': 0.1.5
+
+  '@types/rdfjs__data-model@2.0.9':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__dataset@2.0.7':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__environment@1.0.0':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/node': 22.17.2
+
+  '@types/rdfjs__fetch-lite@3.0.11':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/node': 22.17.2
+      '@types/rdfjs__formats': 4.0.1
+
+  '@types/rdfjs__formats@4.0.1':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/node': 22.17.2
+      '@types/rdfjs__parser-jsonld': 2.1.7
+      '@types/rdfjs__parser-n3': 2.0.6
+      '@types/rdfjs__serializer-jsonld': 2.0.5
+      '@types/rdfjs__serializer-jsonld-ext': 4.0.1
+      '@types/rdfjs__serializer-ntriples': 2.0.6
+      '@types/rdfjs__serializer-turtle': 1.1.0
+      '@types/rdfjs__sink-map': 2.0.5
+      rdfxml-streaming-parser: 3.1.0
+
   '@types/rdfjs__namespace@2.0.10':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__parser-jsonld@2.1.7':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/jsonld': 1.5.15
+
+  '@types/rdfjs__parser-n3@2.0.6':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__prefix-map@0.1.5':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__score@0.1.6':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__serializer-jsonld-ext@4.0.1':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/jsonld': 1.5.15
+      '@types/node': 22.17.2
+
+  '@types/rdfjs__serializer-jsonld@2.0.5':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__serializer-ntriples@2.0.6':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__serializer-turtle@1.1.0':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+      '@types/node': 22.17.2
+      '@types/rdfjs__prefix-map': 0.1.5
+
+  '@types/rdfjs__sink-map@2.0.5':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__term-map@2.0.10':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__term-set@2.0.9':
+    dependencies:
+      '@rdfjs/types': 2.0.1
+
+  '@types/rdfjs__traverser@0.1.5':
     dependencies:
       '@rdfjs/types': 2.0.1
 

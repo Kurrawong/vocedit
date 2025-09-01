@@ -12,7 +12,7 @@ import {
 type Item = {
   title: string
   url: string
-  icon: LucideIcon
+  icon?: LucideIcon
 }
 
 defineProps<{
@@ -28,10 +28,7 @@ defineProps<{
       <template v-if="items.length">
         <SidebarMenuItem v-for="item in items" :key="item.title">
           <SidebarMenuButton as-child :tooltip="item.title">
-            <a :href="item.url">
-              <component :is="item.icon" />
-              <span>{{ item.title }}</span>
-            </a>
+            <RouterLink :to="item.url">{{ item.title }}</RouterLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </template>

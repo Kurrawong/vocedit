@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   Sidebar,
   SidebarContent,
@@ -7,12 +8,34 @@ import {
   SidebarMenu,
 } from '@/components/ui/sidebar'
 import SidebarList from '@/components/SidebarList.vue'
-import { createResourceManager } from '@kurrawongai/shacl-ui'
-import { createVocEditMachine, useVocEditMachine } from '@/composables/vocedit-machine'
+import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
+import { useVocEditMachine } from '@/composables/vocedit-machine'
+import { rdf, skos } from '@/namespaces'
 
-const resourceManager = createResourceManager()
-createVocEditMachine(resourceManager)
+const resourceManager = useResourceManagerContext()
 const { snapshot } = useVocEditMachine()
+
+const vocabularies = computed(() => {
+  const label = 'Vocabularies'
+  const items = resourceManager.dataGraph.value
+    .getSubjects(rdf.type, skos.ConceptScheme, null)
+    .map((conceptScheme) => {
+      const [label] = resourceManager.dataGraph.value.getObjects(
+        conceptScheme,
+        skos.prefLabel,
+        null,
+      )
+      return {
+        title: label.value || conceptScheme.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        url: `/resource?iri=${conceptScheme.value}`,
+      }
+    })
+
+  return {
+    label,
+    items,
+  }
+})
 </script>
 
 <template>
@@ -30,7 +53,7 @@ const { snapshot } = useVocEditMachine()
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarList label="Vocabularies" :items="[]" />
+              <SidebarList :items="vocabularies.items" :label="vocabularies.label" />
               <SidebarList label="Collections" :items="[]" />
               <SidebarList label="Concepts" :items="[]" />
             </SidebarMenu>
