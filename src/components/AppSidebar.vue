@@ -11,6 +11,7 @@ import SidebarList from '@/components/SidebarList.vue'
 import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { rdf, skos } from '@/namespaces'
+import { Separator } from '@/components/ui/separator'
 
 const resourceManager = useResourceManagerContext()
 const { snapshot } = useVocEditMachine()
@@ -69,7 +70,9 @@ const concepts = computed(() => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarList label="Vocabularies" :items="vocabularies" />
+              <Separator />
               <SidebarList label="Collections" :items="collections" />
+              <Separator />
               <SidebarList label="Concepts" :items="concepts" />
             </SidebarMenu>
           </SidebarGroupContent>
