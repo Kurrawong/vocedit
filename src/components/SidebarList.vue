@@ -28,7 +28,9 @@ defineProps<{
       <template v-if="items.length">
         <SidebarMenuItem v-for="item in items" :key="item.title">
           <SidebarMenuButton as-child :tooltip="item.title">
-            <RouterLink :to="item.url">{{ item.title }}</RouterLink>
+            <RouterLink :to="item.url">
+              <span class="truncate" :title="item.title">{{ item.title }}</span>
+            </RouterLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </template>
