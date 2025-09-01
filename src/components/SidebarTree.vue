@@ -1,43 +1,49 @@
 <script setup lang="ts">
-import { ChevronRight, File, Folder } from 'lucide-vue-next'
+import { ChevronRight, type LucideIcon } from 'lucide-vue-next'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { SidebarMenuButton, SidebarMenuItem, SidebarMenuSub } from '@/components/ui/sidebar'
+import {
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuAction,
+} from '@/components/ui/sidebar'
 
-const props = defineProps<{
-  item: string | (string | string[])[]
+type Item = {
+  title: string
+  url: string
+  icon: LucideIcon
+  isActive?: boolean
+  items?: Item[]
+}
+
+defineProps<{
+  items: Item[]
 }>()
-
-const [name, ...items] = Array.isArray(props.item) ? props.item : [props.item]
 </script>
 
 <template>
-  <SidebarMenuButton
-    v-if="!items.length"
-    :is-active="name === 'button.tsx'"
-    class="data-[active=true]:bg-transparent"
-  >
-    <File />
-    {{ name }}
-  </SidebarMenuButton>
-
-  <SidebarMenuItem>
-    <Collapsible
-      class="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
-      :default-open="name === 'components' || name === 'ui'"
-    >
-      <CollapsibleTrigger as-child>
-        <SidebarMenuButton>
-          <ChevronRight class="transition-transform" />
-          <Folder />
-          {{ name }}
+  <SidebarMenuItem v-for="item in items" :key="item.title">
+    <Collapsible :default-open="item.isActive">
+      <SidebarMenuItem>
+        <SidebarMenuButton as-child :tooltip="item.title">
+          <a :href="item.url">
+            <component :is="item.icon" />
+            <span>{{ item.title }}</span>
+          </a>
         </SidebarMenuButton>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <SidebarMenuSub>
-          <SidebarTree v-for="(subItem, index) in items" :key="index" :item="subItem" />
-        </SidebarMenuSub>
-      </CollapsibleContent>
+        <CollapsibleTrigger as-child>
+          <SidebarMenuAction class="data-[state=open]:rotate-90">
+            <ChevronRight />
+            <span class="sr-only">Toggle</span>
+          </SidebarMenuAction>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            <SidebarTree :items="item.items" />
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
     </Collapsible>
   </SidebarMenuItem>
 </template>
