@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { type LucideIcon } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
 import {
   SidebarMenuButton,
@@ -11,7 +13,7 @@ import {
 
 type Item = {
   title: string
-  url: string
+  iri: string
   icon?: LucideIcon
 }
 
@@ -19,6 +21,9 @@ defineProps<{
   label: string
   items: Item[]
 }>()
+
+const route = useRoute()
+const iri = computed(() => route.query.iri as string)
 </script>
 
 <template>
@@ -27,8 +32,8 @@ defineProps<{
     <SidebarMenu>
       <template v-if="items.length">
         <SidebarMenuItem v-for="item in items" :key="item.title">
-          <SidebarMenuButton as-child :tooltip="item.title">
-            <RouterLink :to="item.url">
+          <SidebarMenuButton as-child :tooltip="item.title" :is-active="item.iri === iri">
+            <RouterLink :to="`/resource?iri=${item.iri}`">
               <span class="truncate" :title="item.title">{{ item.title }}</span>
             </RouterLink>
           </SidebarMenuButton>

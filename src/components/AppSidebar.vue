@@ -27,7 +27,7 @@ const vocabularies = computed(() => {
       )
       return {
         title: label.value || conceptScheme.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
-        url: `/resource?iri=${conceptScheme.value}`,
+        iri: conceptScheme.value,
       }
     })
 
@@ -41,7 +41,7 @@ const collections = computed(() => {
       const [label] = resourceManager.dataGraph.value.getObjects(collection, skos.prefLabel, null)
       return {
         title: label.value || collection.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
-        url: `/resource?iri=${collection.value}`,
+        iri: collection.value,
       }
     })
 
@@ -55,7 +55,7 @@ const concepts = computed(() => {
       const [label] = resourceManager.dataGraph.value.getObjects(concept, skos.prefLabel, null)
       return {
         title: label.value || concept.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
-        url: `/resource?iri=${concept.value}`,
+        iri: concept.value,
       }
     })
 
