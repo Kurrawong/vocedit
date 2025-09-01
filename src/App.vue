@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { createResourceManager } from '@kurrawongai/shacl-ui'
 import { createVocEditMachine } from '@/composables/vocedit-machine'
 import AppMenubar from '@/components/AppMenubar.vue'
-import Index from '@/components/Index.vue'
+import Main from '@/components/Main.vue'
 
 const resourceManager = createResourceManager()
 const { snapshot } = createVocEditMachine(resourceManager)
@@ -21,12 +21,11 @@ const state = computed(() => snapshot.value)
     </div>
   </header> -->
 
-  <!-- <AppMenubar /> -->
-
-  <Index />
-
-  <pre>{{ state.context.resourceManager.dataGraph.value.size }}</pre>
-  <pre>{{ state.value }}</pre>
+  <Main>
+    <AppMenubar />
+    <pre>{{ state.context.resourceManager.dataGraph.value.size }}</pre>
+    <pre>{{ state.value }}</pre>
+  </Main>
 
   <RouterView />
 </template>
