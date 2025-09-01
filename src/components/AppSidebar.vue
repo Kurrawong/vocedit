@@ -35,8 +35,17 @@ const vocabularies = computed(() => {
 })
 
 const collections = computed(() => {
-  // TODO: Add collections listing
-  return []
+  const items = resourceManager.dataGraph.value
+    .getSubjects(rdf.type, skos.Collection, null)
+    .map((collection) => {
+      const [label] = resourceManager.dataGraph.value.getObjects(collection, skos.prefLabel, null)
+      return {
+        title: label.value || collection.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        url: `/resource?iri=${collection.value}`,
+      }
+    })
+
+  return items
 })
 
 const concepts = computed(() => {
