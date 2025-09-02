@@ -41,16 +41,22 @@ const openIssueTracker = () => {
     <MenubarMenu>
       <MenubarTrigger>File</MenubarTrigger>
       <MenubarContent>
-        <MenubarItem disabled> New Project (coming soon) </MenubarItem>
+        <MenubarItem disabled> New (coming soon) </MenubarItem>
         <MenubarItem :disabled="!snapshot.matches('empty')" @click="send({ type: 'project.open' })">
-          Open Project
+          Open
+        </MenubarItem>
+        <MenubarItem
+          :disabled="!snapshot.matches('opened')"
+          @click="send({ type: 'project.save' })"
+        >
+          Save
         </MenubarItem>
         <MenubarSeparator />
         <MenubarItem
           :disabled="!snapshot.matches('opened')"
           @click="send({ type: 'project.close' })"
         >
-          Close Project
+          Close
         </MenubarItem>
       </MenubarContent>
     </MenubarMenu>

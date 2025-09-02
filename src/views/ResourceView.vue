@@ -22,7 +22,6 @@ watch(iri, () => {
 watch(
   () => snapshot.value.matches('opened'),
   (matches) => {
-    console.log('matches', matches)
     if (!matches || !iri.value) {
       router.push('/')
     }

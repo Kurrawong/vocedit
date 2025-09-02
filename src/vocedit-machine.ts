@@ -1,5 +1,6 @@
 import { showOpenFilePicker } from 'show-open-file-picker'
 import { assign, fromPromise, setup } from 'xstate'
+import { toast } from 'vue-sonner'
 import type { CreateResourceManagerReturn } from '@/types'
 
 export const voceditMachine = (appState: {
@@ -82,11 +83,10 @@ export const voceditMachine = (appState: {
         on: {
           'project.new': {
             target: 'opened',
-            actions: () => console.log('start new project'),
+            actions: () => toast.success('Project created'),
           },
           'project.open': {
             target: 'opening',
-            actions: () => console.log('open project'),
           },
         },
       },
@@ -94,7 +94,7 @@ export const voceditMachine = (appState: {
         on: {
           'project.open.file.cancel': {
             target: 'empty',
-            actions: () => console.log('cancel open file'),
+            actions: () => toast.error('Open project cancelled'),
           },
         },
         invoke: {
@@ -103,12 +103,11 @@ export const voceditMachine = (appState: {
           input: ({ context }) => ({ resourceManager: context.resourceManager }),
           onError: {
             target: 'empty',
-            actions: () => console.log('failed to open project file'),
           },
           onDone: {
             target: 'opened',
             actions: [
-              () => console.log('opened project file'),
+              () => toast.success('Project opened'),
               assign({
                 fileHandle: ({ event }) => event.output.fileHandle,
               }),
@@ -121,7 +120,7 @@ export const voceditMachine = (appState: {
           'project.close': {
             target: 'empty',
             actions: [
-              () => console.log('close project'),
+              () => toast.success('Project closed'),
               assign({
                 fileHandle: null,
               }),
@@ -129,7 +128,6 @@ export const voceditMachine = (appState: {
           },
           'project.save': {
             target: 'saving',
-            actions: () => console.log('save project'),
           },
         },
       },
@@ -137,7 +135,7 @@ export const voceditMachine = (appState: {
         on: {
           'project.save.cancel': {
             target: 'opened',
-            actions: () => console.log('cancel save project'),
+            actions: () => toast.error('Save project cancelled'),
           },
         },
         invoke: {
@@ -149,11 +147,11 @@ export const voceditMachine = (appState: {
           }),
           onError: {
             target: 'opened',
-            actions: () => console.log('failed to save project file'),
+            actions: () => toast.error('Failed to save project file'),
           },
           onDone: {
             target: 'opened',
-            actions: () => console.log('saved project file'),
+            actions: () => toast.success('Project saved successfully'),
           },
         },
       },

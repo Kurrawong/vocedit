@@ -4,6 +4,9 @@ import { createResourceManager } from '@kurrawongai/shacl-ui'
 import { createVocEditMachine } from '@/composables/vocedit-machine'
 import AppMenubar from '@/components/AppMenubar.vue'
 import Main from '@/components/Main.vue'
+import { Toaster } from '@/components/ui/sonner'
+// css import required for vue-sonner v2
+import 'vue-sonner/style.css'
 import vocpub from '@/assets/vocpub.ttl?raw'
 
 const resourceManager = createResourceManager()
@@ -19,4 +22,6 @@ createVocEditMachine(resourceManager)
 
     <RouterView />
   </Main>
+
+  <Toaster />
 </template>
