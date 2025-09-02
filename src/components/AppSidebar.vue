@@ -6,12 +6,17 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
+  SidebarHeader,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from '@/components/ui/sidebar'
 import SidebarList from '@/components/SidebarList.vue'
 import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { rdf, skos } from '@/namespaces'
 import { Separator } from '@/components/ui/separator'
+import { Command } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
 
 const resourceManager = useResourceManagerContext()
 const { snapshot } = useVocEditMachine()
@@ -74,6 +79,25 @@ const concepts = computed(() => {
     </template>
 
     <template v-else>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" as-child>
+              <RouterLink to="/">
+                <div
+                  class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+                >
+                  <Command class="size-4" />
+                </div>
+                <div class="grid flex-1 text-left text-sm leading-tight">
+                  <span class="truncate font-semibold">VocEdit</span>
+                </div>
+              </RouterLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
