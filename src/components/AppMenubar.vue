@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { ExternalLink } from 'lucide-vue-next'
 import {
   Menubar,
   MenubarContent,
@@ -7,13 +9,35 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from '@/components/ui/menubar'
+import AboutDialog from '@/components/AboutDialog.vue'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 
 const { snapshot, send } = useVocEditMachine()
+
+const aboutDialogRef = ref<InstanceType<typeof AboutDialog>>()
+
+const openAboutDialog = () => {
+  aboutDialogRef.value?.open()
+}
+
+const openIssueTracker = () => {
+  window.open('https://github.com/Kurrawong/vocedit/issues', '_blank', 'noopener,noreferrer')
+}
 </script>
 
 <template>
   <Menubar>
+    <MenubarMenu>
+      <MenubarTrigger>VocEdit</MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem @click="openAboutDialog">About</MenubarItem>
+        <MenubarItem @click="openIssueTracker">
+          Issue tracker
+          <ExternalLink class="h-4 w-4" />
+        </MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+
     <MenubarMenu>
       <MenubarTrigger>File</MenubarTrigger>
       <MenubarContent>
@@ -31,4 +55,6 @@ const { snapshot, send } = useVocEditMachine()
       </MenubarContent>
     </MenubarMenu>
   </Menubar>
+
+  <AboutDialog ref="aboutDialogRef" />
 </template>
