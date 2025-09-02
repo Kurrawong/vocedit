@@ -17,20 +17,24 @@ type Item = {
   icon?: LucideIcon
 }
 
-defineProps<{
+const props = defineProps<{
   label: string
   items: Item[]
 }>()
 
 const route = useRoute()
 const iri = computed(() => route.query.iri as string)
+const count = computed(() => props.items.length)
 </script>
 
 <template>
   <SidebarGroup>
-    <SidebarGroupLabel>{{ label }}</SidebarGroupLabel>
+    <SidebarGroupLabel
+      >{{ label }}
+      <span class="text-[10px] pl-1" v-if="count > 0">({{ count }})</span></SidebarGroupLabel
+    >
     <SidebarMenu>
-      <template v-if="items.length">
+      <template v-if="count">
         <SidebarMenuItem v-for="item in items" :key="item.title">
           <SidebarMenuButton as-child :tooltip="item.title" :is-active="item.iri === iri">
             <RouterLink :to="`/resource?iri=${item.iri}`">
