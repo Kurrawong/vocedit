@@ -17,6 +17,8 @@ export const voceditMachine = (appState: {
         | { type: 'project.open' }
         | { type: 'project.open.file' }
         | { type: 'project.open.file.cancel' }
+        | { type: 'project.save' }
+        | { type: 'project.save.cancel' }
         | { type: 'project.close' },
     },
     guards: {},
@@ -43,6 +45,26 @@ export const voceditMachine = (appState: {
 
             return {
               fileHandle,
+            }
+          },
+        )
+      })(),
+      saveProjectFile: (() => {
+        return fromPromise(
+          async ({
+            input,
+          }: {
+            input: {
+              resourceManager: CreateResourceManagerReturn
+              fileHandle: FileSystemFileHandle
+            }
+          }) => {
+            const writable = await input.fileHandle.createWritable()
+            await writable.write(input.resourceManager.dataGraph.value.toString())
+            await writable.close()
+
+            return {
+              fileHandle: input.fileHandle,
             }
           },
         )
@@ -104,6 +126,34 @@ export const voceditMachine = (appState: {
                 fileHandle: null,
               }),
             ],
+          },
+          'project.save': {
+            target: 'saving',
+            actions: () => console.log('save project'),
+          },
+        },
+      },
+      saving: {
+        on: {
+          'project.save.cancel': {
+            target: 'opened',
+            actions: () => console.log('cancel save project'),
+          },
+        },
+        invoke: {
+          id: 'save-project-file',
+          src: 'saveProjectFile',
+          input: ({ context }) => ({
+            resourceManager: context.resourceManager,
+            fileHandle: context.fileHandle!,
+          }),
+          onError: {
+            target: 'opened',
+            actions: () => console.log('failed to save project file'),
+          },
+          onDone: {
+            target: 'opened',
+            actions: () => console.log('saved project file'),
           },
         },
       },
