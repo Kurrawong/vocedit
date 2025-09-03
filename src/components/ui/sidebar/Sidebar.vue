@@ -11,11 +11,19 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const props = withDefaults(defineProps<SidebarProps>(), {
-  side: 'left',
-  variant: 'sidebar',
-  collapsible: 'offcanvas',
-})
+const props = withDefaults(
+  defineProps<
+    SidebarProps & {
+      embedded?: boolean
+    }
+  >(),
+  {
+    side: 'left',
+    variant: 'sidebar',
+    collapsible: 'offcanvas',
+    embedded: false,
+  },
+)
 
 const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 </script>
@@ -78,7 +86,10 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
     <div
       :class="
         cn(
-          'fixed inset-y-0 z-10 h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
+          // Use absolute positioning when embedded, fixed when standalone
+          props.embedded
+            ? 'absolute inset-y-0 z-10 h-full w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex'
+            : 'fixed inset-y-0 z-10 h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
           side === 'left'
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
             : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
@@ -93,7 +104,7 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
     >
       <div
         data-sidebar="sidebar"
-        class="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+        class="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=icon]:shadow-sm"
       >
         <slot />
       </div>

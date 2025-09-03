@@ -69,7 +69,7 @@ const concepts = computed(() => {
 </script>
 
 <template>
-  <Sidebar>
+  <Sidebar embedded>
     <template v-if="snapshot.matches('empty') || snapshot.matches('opening')">
       <SidebarContent>
         <SidebarGroup class="h-full flex items-center justify-center">
