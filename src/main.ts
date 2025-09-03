@@ -1,17 +1,12 @@
-import PrimeVue from 'primevue/config'
-import ToastService from 'primevue/toastservice'
+import '@/assets/main.css'
 
 import { createApp } from 'vue'
 import App from '@/App.vue'
-import router from '@/router'
-
-import 'shacl-ui/styles/style.css'
-import { shuiPlugin } from 'shacl-ui'
+import { createVocEditRouter } from '@/router'
 
 const app = createApp(App)
-app.use(PrimeVue)
-app.use(ToastService)
-app.use(shuiPlugin)
 
+const router = createVocEditRouter(import.meta.env.BASE_URL)
 app.use(router)
+
 app.mount('#app')

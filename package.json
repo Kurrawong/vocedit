@@ -1,52 +1,111 @@
 {
-  "name": "vocedit",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@kurrawongai/vocedit",
+  "version": "0.1.0",
+  "private": false,
   "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "main": "./dist/vocedit.umd.cjs",
+  "module": "./dist/vocedit.js",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./dist/index": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/index.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kurrawong/vocedit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kurrawong/vocedit/issues"
+  },
+  "homepage": "https://github.com/kurrawong/vocedit",
+  "author": {
+    "name": "Edmond Chuc",
+    "email": "edmond@kurrawong.ai"
+  },
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vocedit"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
+    "build:lib": "vite build --mode lib",
+    "prepublishOnly": "pnpm build:lib",
     "preview": "vite preview",
+    "test:unit": "vitest",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build --force",
-    "lint": "eslint . --fix",
+    "type-check": "vue-tsc --build",
+    "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
+    "lint:eslint": "eslint . --fix",
+    "lint": "run-s lint:*",
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@comunica/query-sparql": "^4.0.2",
-    "@hydrofoil/shape-to-query": "^0.13.1",
-    "@rdfjs/dataset": "^2.0.2",
-    "@xstate/vue": "^3.1.4",
-    "clownface": "^2.0.2",
-    "grapoi": "^1.1.2",
-    "n3": "^1.22.3",
-    "primeicons": "^7.0.0",
-    "primevue": "3",
-    "rdf-ext": "^2.5.2",
-    "shacl-engine": "^1.0.1",
-    "shacl-ui": "link:../shacl-ui/js",
-    "sparqljs": "^3.7.3",
-    "uuid": "^11.0.1",
-    "vue": "^3.5.12",
-    "vue-codemirror": "^6.1.1",
-    "vue-router": "^4.4.5",
-    "xstate": "^5.18.2"
+    "@kurrawongai/shacl-ui": "^0.3.1",
+    "@types/rdf-ext": "^2.5.2",
+    "@vueuse/core": "^13.7.0",
+    "@xstate/vue": "^5.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.541.0",
+    "n3": "^1.26.0",
+    "rdf-ext": "2.5.2",
+    "reka-ui": "^2.4.1",
+    "show-open-file-picker": "^0.4.0",
+    "tailwind-merge": "^3.3.1",
+    "tw-animate-css": "^1.3.7",
+    "vue-sonner": "^2.0.8",
+    "xstate": "^5.20.2"
   },
   "devDependencies": {
-    "@tsconfig/node20": "^20.1.4",
-    "@types/n3": "^1.21.1",
-    "@types/node": "^20.17.0",
-    "@types/wicg-file-system-access": "^2023.10.5",
-    "@vitejs/plugin-vue": "^5.1.4",
-    "@vue/eslint-config-prettier": "^10.0.0",
-    "@vue/eslint-config-typescript": "^14.1.1",
-    "@vue/tsconfig": "^0.5.1",
-    "eslint": "^9.13.0",
-    "eslint-plugin-vue": "^9.29.0",
-    "npm-run-all2": "^7.0.1",
-    "prettier": "^3.3.3",
-    "typescript": "~5.6.0",
-    "vite": "^5.4.10",
-    "vue-tsc": "^2.1.6"
+    "@prettier/plugin-oxc": "^0.0.4",
+    "@tailwindcss/vite": "^4.1.12",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/jsdom": "^21.1.7",
+    "@types/n3": "^1.26.0",
+    "@types/node": "^22.16.5",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/eslint-plugin": "^1.3.4",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.31.0",
+    "eslint-plugin-oxlint": "~1.8.0",
+    "eslint-plugin-vue": "~10.3.0",
+    "jiti": "^2.4.2",
+    "jsdom": "^26.1.0",
+    "npm-run-all2": "^8.0.4",
+    "oxlint": "~1.8.0",
+    "prettier": "3.6.2",
+    "tailwindcss": "^4.1.12",
+    "typescript": "~5.8.0",
+    "vite": "^7.0.6",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-libcss": "^1.1.2",
+    "vite-plugin-vue-devtools": "^8.0.0",
+    "vitest": "^3.2.4",
+    "vue": "^3.5.18",
+    "vue-tsc": "^3.0.4"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
   }
 }

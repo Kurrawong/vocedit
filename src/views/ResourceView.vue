@@ -1,59 +1,54 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import Chip from 'primevue/chip'
-import SideNav from '@/components/SideNav.vue'
-import Page from '@/components/Page.vue'
-import { FocusNode } from 'shacl-ui'
-import { DataFactory } from 'n3'
-const { namedNode } = DataFactory
-import { DATA_GRAPH } from '@/constants'
-import { useShui } from 'shacl-ui/composables/shui'
-import { getConceptLabel } from '@/queries'
-import { rdf } from 'shacl-ui/core/namespaces'
+import { useVocEditMachine } from '@/composables/vocedit-machine'
+import { useRouter } from 'vue-router'
+import n3 from 'n3'
+import { ResourceShell, useResourceManagerContext } from '@kurrawongai/shacl-ui'
+import { rdf, skos } from '@/namespaces'
 
 const route = useRoute()
-const { shui } = useShui()
-const iri = computed(() => route.query.iri || '')
-const focusNodeTerm = computed(() => namedNode(iri.value.toString()))
-const label = computed(() => {
-  return getConceptLabel(focusNodeTerm.value, shui.value.store)
+const iri = computed(() => route.query.iri as string)
+const router = useRouter()
+const { namedNode } = n3.DataFactory
+
+const { snapshot } = useVocEditMachine()
+const resourceManager = useResourceManagerContext()
+
+watch(iri, () => {
+  resourceManager.cancelEditing()
 })
-const resourceType = computed(() => {
-  const types = shui.value.store.getObjects(focusNodeTerm.value, rdf.type, null)
-  for (const t of types) {
-    if (t.value.includes('http://www.w3.org/2004/02/skos/core#')) {
-      return t.value.split('#').slice(-1)[0].split('/').slice(-1)[0]
+
+watch(
+  () => snapshot.value.matches('opened'),
+  (matches) => {
+    if (!matches || !iri.value) {
+      router.push('/')
+    }
+  },
+  { immediate: true },
+)
+
+const focusNode = computed(() => namedNode(iri.value))
+const nodeShape = computed(() => {
+  const classes = resourceManager.dataGraph.value.getObjects(focusNode.value, rdf.type, null)
+
+  for (const cls of classes) {
+    if (cls.equals(skos.ConceptScheme)) {
+      return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-ConceptScheme')
+    } else if (cls.equals(skos.Collection)) {
+      return null
+    } else if (cls.equals(skos.Concept)) {
+      return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-Concept')
     }
   }
+
   return null
-})
-const nodeShapeTerm = computed(() => {
-  if (resourceType.value === 'ConceptScheme') {
-    return namedNode(
-      'https://w3id.org/profile/vocpub/validator/Shui-ConceptScheme',
-    )
-  }
-  return namedNode('https://w3id.org/profile/vocpub/validator/Shui-Concept')
 })
 </script>
 
 <template>
-  <Page>
-    <template #side-nav>
-      <SideNav />
-    </template>
-
-    <div class="space-y-4">
-      <h1 class="text-2xl font-bold">{{ label }}</h1>
-      <Chip v-if="resourceType" :label="resourceType" />
-      <code class="block overflow-x-auto">{{ iri }}</code>
-      <FocusNode
-        :focus-node="focusNodeTerm"
-        :data-graph="DATA_GRAPH"
-        :node-shape="nodeShapeTerm"
-        :is-root-node="true"
-      />
-    </div>
-  </Page>
+  <div class="px-6">
+    <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" />
+  </div>
 </template>
