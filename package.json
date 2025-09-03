@@ -1,5 +1,5 @@
 {
-  "name": "vocedit",
+  "name": "@kurrawongai/vocedit",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -45,6 +45,8 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
+    "build:lib": "vite build --mode lib",
+    "prepublishOnly": "pnpm build:lib",
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",

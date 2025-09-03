@@ -1,4 +1,5 @@
-import { fileURLToPath, resolve, URL } from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
+import { resolve } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -29,7 +30,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/index.ts'),
       name: 'vocedit',
       fileName: 'index',
     },

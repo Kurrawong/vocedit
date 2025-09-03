@@ -2,6 +2,16 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
+## Changelog
+
+### 0.1.0
+
+- Initial release
+  - Embeddable component
+  - Can open and save vocab files
+  - Browse Concept Schemes, Collections and Concepts
+  - Use SHACL UI form for editing resources
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
@@ -42,4 +52,25 @@ pnpm test:unit
 
 ```sh
 pnpm lint
+```
+
+### Testing with local project
+
+Build the library.
+
+```sh
+pnpm build:lib
+pnpm pack
+```
+
+Install the library in the local project. Use an absolute path to the tgz file.
+
+```sh
+pnpm add ~/kurrawong/vocedit/kurrawongai-vocedit-0.1.0.tgz
+```
+
+### Publish
+
+```sh
+pnpm publish --access public --no-git-checks
 ```
