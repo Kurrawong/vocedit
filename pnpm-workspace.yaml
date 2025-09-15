@@ -1,0 +1,2 @@
+overrides:
+  '@kurrawongai/shacl-ui': link:../shacl-ui/shacl-ui

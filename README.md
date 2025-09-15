@@ -56,6 +56,22 @@ pnpm lint
 
 ### Testing with local project
 
+**1. Linking the library to the local project**
+
+Link the local shacl-ui package.
+
+```sh
+pnpm link ~/projects/kurrawong/shacl-ui/shacl-ui
+```
+
+Unlink all linked packages.
+
+```sh
+pnpm unlink
+```
+
+**2. Installing the library in a local project**
+
 Build the library.
 
 ```sh
