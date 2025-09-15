@@ -19,6 +19,7 @@ import {
 import { MoreHorizontal, Trash2 } from 'lucide-vue-next'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
+import n3 from 'n3'
 
 type Item = {
   title: string
@@ -33,11 +34,12 @@ const props = defineProps<{
 
 const route = useRoute()
 const iri = computed(() => route.query.iri as string)
+const { namedNode } = n3.DataFactory
 const count = computed(() => props.items.length)
 const { send } = useVocEditMachine()
 
 function handleDelete(iri: string) {
-  send({ type: 'resource.delete', resourceIri: iri })
+  send({ type: 'resource.delete', resourceIri: namedNode(iri) })
 }
 </script>
 

@@ -38,8 +38,8 @@ const handleOpenChange = (open: boolean) => {
         <DialogTitle>Delete Resource</DialogTitle>
         <DialogDescription>
           Are you sure you want to delete this resource?
-          <span v-if="resourceToDelete" class="block mt-2 font-mono text-sm">
-            {{ resourceToDelete }}
+          <span v-if="resourceToDelete" class="block my-2 font-mono font-bold text-sm">
+            {{ resourceToDelete.value }}
           </span>
           This action cannot be undone.
         </DialogDescription>

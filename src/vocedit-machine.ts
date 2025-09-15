@@ -1,19 +1,23 @@
 import { showOpenFilePicker } from 'show-open-file-picker'
 import { assign, fromPromise, setup } from 'xstate'
 import { toast } from 'vue-sonner'
+import type { NamedNode } from 'n3'
 import type { CreateResourceManagerReturn } from '@/types'
+import type { Router } from 'vue-router'
 
 export const voceditMachine = (appState: {
   resourceManager: CreateResourceManagerReturn
   fileHandle: FileSystemFileHandle | null
-  resourceToDelete: string | null
+  resourceToDelete: NamedNode | null
+  router: Router
 }) =>
   setup({
     types: {
       context: {} as {
         resourceManager: CreateResourceManagerReturn
         fileHandle: FileSystemFileHandle | null
-        resourceToDelete: string | null
+        resourceToDelete: NamedNode | null
+        router: Router
       },
       events: {} as
         | { type: 'project.new' }
@@ -23,7 +27,7 @@ export const voceditMachine = (appState: {
         | { type: 'project.save' }
         | { type: 'project.save.cancel' }
         | { type: 'project.close' }
-        | { type: 'resource.delete'; resourceIri: string }
+        | { type: 'resource.delete'; resourceIri: NamedNode }
         | { type: 'resource.delete.confirm' }
         | { type: 'resource.delete.cancel' },
     },
@@ -80,14 +84,12 @@ export const voceditMachine = (appState: {
           async ({
             input,
           }: {
-            input: { resourceManager: CreateResourceManagerReturn; resourceIri: string }
+            input: { resourceManager: CreateResourceManagerReturn; resourceIri: NamedNode }
           }) => {
-            // TODO: Implement actual delete logic here
-            // Example: await input.resourceManager.deleteResource(input.resourceIri)
-            console.log('Invoking deleteResource', input.resourceIri)
+            input.resourceManager.deleteResource(input.resourceIri)
 
             return {
-              deletedResourceIri: input.resourceIri,
+              deletedResourceIri: input.resourceIri.value,
             }
           },
         )
@@ -125,6 +127,15 @@ export const voceditMachine = (appState: {
           input: ({ context }) => ({ resourceManager: context.resourceManager }),
           onError: {
             target: 'empty',
+            actions: ({ event }) => {
+              const error = event.error as Error | undefined
+              console.error('Open project error:', error)
+              console.error('Error details:', {
+                message: error?.message,
+                stack: error?.stack,
+                cause: (error as Error & { cause?: unknown })?.cause,
+              })
+            },
           },
           onDone: {
             target: 'opened',
@@ -186,7 +197,16 @@ export const voceditMachine = (appState: {
           onError: {
             target: 'opened',
             actions: [
-              () => toast.error('Failed to delete resource'),
+              ({ event }) => {
+                const error = event.error as Error | undefined
+                console.error('Delete resource error:', error)
+                console.error('Error details:', {
+                  message: error?.message,
+                  stack: error?.stack,
+                  cause: (error as Error & { cause?: unknown })?.cause,
+                })
+                toast.error(`Failed to delete resource: ${error?.message || 'Unknown error'}`)
+              },
               assign({
                 resourceToDelete: null,
               }),
@@ -199,6 +219,15 @@ export const voceditMachine = (appState: {
               assign({
                 resourceToDelete: null,
               }),
+              ({ context, event }) => {
+                // Check if the deleted resource IRI matches the current route's query parameter
+                const currentIri = context.router.currentRoute.value.query.iri as string
+                const deletedResourceIri = event.output.deletedResourceIri
+
+                if (currentIri === deletedResourceIri) {
+                  context.router.push('/')
+                }
+              },
             ],
           },
         },
@@ -219,7 +248,16 @@ export const voceditMachine = (appState: {
           }),
           onError: {
             target: 'opened',
-            actions: () => toast.error('Failed to save project file'),
+            actions: ({ event }) => {
+              const error = event.error as Error | undefined
+              console.error('Save project error:', error)
+              console.error('Error details:', {
+                message: error?.message,
+                stack: error?.stack,
+                cause: (error as Error & { cause?: unknown })?.cause,
+              })
+              toast.error(`Failed to save project file: ${error?.message || 'Unknown error'}`)
+            },
           },
           onDone: {
             target: 'opened',
