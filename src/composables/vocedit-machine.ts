@@ -9,7 +9,9 @@ type UseMachineReturn = ReturnType<typeof useMachine<VocEditMachine>>
 const VOCEDIT_MACHINE_KEY = Symbol('vocedit-machine')
 
 export function createVocEditMachine(resourceManager: CreateResourceManagerReturn) {
-  const machine = useMachine(voceditMachine({ resourceManager, fileHandle: null }))
+  const machine = useMachine(
+    voceditMachine({ resourceManager, fileHandle: null, resourceToDelete: null }),
+  )
   provide(VOCEDIT_MACHINE_KEY, machine)
 
   return machine

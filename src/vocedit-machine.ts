@@ -6,12 +6,14 @@ import type { CreateResourceManagerReturn } from '@/types'
 export const voceditMachine = (appState: {
   resourceManager: CreateResourceManagerReturn
   fileHandle: FileSystemFileHandle | null
+  resourceToDelete: string | null
 }) =>
   setup({
     types: {
       context: {} as {
         resourceManager: CreateResourceManagerReturn
         fileHandle: FileSystemFileHandle | null
+        resourceToDelete: string | null
       },
       events: {} as
         | { type: 'project.new' }
@@ -20,7 +22,10 @@ export const voceditMachine = (appState: {
         | { type: 'project.open.file.cancel' }
         | { type: 'project.save' }
         | { type: 'project.save.cancel' }
-        | { type: 'project.close' },
+        | { type: 'project.close' }
+        | { type: 'resource.delete'; resourceIri: string }
+        | { type: 'resource.delete.confirm' }
+        | { type: 'resource.delete.cancel' },
     },
     guards: {},
     actors: {
@@ -66,6 +71,23 @@ export const voceditMachine = (appState: {
 
             return {
               fileHandle: input.fileHandle,
+            }
+          },
+        )
+      })(),
+      deleteResource: (() => {
+        return fromPromise(
+          async ({
+            input,
+          }: {
+            input: { resourceManager: CreateResourceManagerReturn; resourceIri: string }
+          }) => {
+            // TODO: Implement actual delete logic here
+            // Example: await input.resourceManager.deleteResource(input.resourceIri)
+            console.log('Invoking deleteResource', input.resourceIri)
+
+            return {
+              deletedResourceIri: input.resourceIri,
             }
           },
         )
@@ -128,6 +150,56 @@ export const voceditMachine = (appState: {
           },
           'project.save': {
             target: 'saving',
+          },
+          'resource.delete': {
+            target: 'deleteResourceDialog',
+            actions: assign({
+              resourceToDelete: ({ event }) => event.resourceIri,
+            }),
+          },
+        },
+      },
+      deleteResourceDialog: {
+        on: {
+          'resource.delete.confirm': {
+            target: 'deleteResource',
+          },
+          'resource.delete.cancel': {
+            target: 'opened',
+            actions: [
+              () => toast.message('Delete resource cancelled'),
+              assign({
+                resourceToDelete: null,
+              }),
+            ],
+          },
+        },
+      },
+      deleteResource: {
+        invoke: {
+          id: 'delete-resource',
+          src: 'deleteResource',
+          input: ({ context }) => ({
+            resourceManager: context.resourceManager,
+            resourceIri: context.resourceToDelete!,
+          }),
+          onError: {
+            target: 'opened',
+            actions: [
+              () => toast.error('Failed to delete resource'),
+              assign({
+                resourceToDelete: null,
+              }),
+            ],
+          },
+          onDone: {
+            target: 'opened',
+            actions: [
+              () => toast.success('Resource deleted'),
+              assign({
+                resourceToDelete: null,
+              }),
+            ],
           },
         },
       },

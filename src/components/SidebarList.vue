@@ -9,7 +9,16 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
 } from '@/components/ui/sidebar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { MoreHorizontal, Trash2 } from 'lucide-vue-next'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { useVocEditMachine } from '@/composables/vocedit-machine'
 
 type Item = {
   title: string
@@ -25,6 +34,11 @@ const props = defineProps<{
 const route = useRoute()
 const iri = computed(() => route.query.iri as string)
 const count = computed(() => props.items.length)
+const { send } = useVocEditMachine()
+
+function handleDelete(iri: string) {
+  send({ type: 'resource.delete', resourceIri: iri })
+}
 </script>
 
 <template>
@@ -41,6 +55,21 @@ const count = computed(() => props.items.length)
               <span class="truncate" :title="item.title">{{ item.title }}</span>
             </RouterLink>
           </SidebarMenuButton>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <SidebarMenuAction show-on-hover>
+                <MoreHorizontal />
+                <span class="sr-only">More</span>
+              </SidebarMenuAction>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent class="w-56 rounded-lg" :side="'right'" :align="'start'">
+              <DropdownMenuItem variant="destructive" @click="handleDelete(item.iri)">
+                <Trash2 class="text-muted-foreground" />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarMenuItem>
       </template>
 
