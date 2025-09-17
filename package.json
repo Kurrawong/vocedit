@@ -57,7 +57,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@kurrawongai/shacl-ui": "link:../shacl-ui/shacl-ui",
+    "@kurrawongai/shacl-ui": "^0.4.0",
     "@types/rdf-ext": "^2.5.2",
     "@vueuse/core": "^13.7.0",
     "@xstate/vue": "^5.0.0",
