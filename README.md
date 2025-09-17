@@ -1,8 +1,11 @@
-# .
-
-This template should help get you started developing with Vue 3 in Vite.
+# VocEdit
 
 ## Changelog
+
+### 0.2.0
+
+- Add delete resource functionality
+- Fix some styling issues
 
 ### 0.1.0
 
