@@ -24,6 +24,7 @@ const { snapshot } = useVocEditMachine()
 const vocabularies = computed(() => {
   const items = resourceManager.dataGraph.value
     .getSubjects(rdf.type, skos.ConceptScheme, null)
+    .filter((conceptScheme) => conceptScheme.termType === 'NamedNode')
     .map((conceptScheme) => {
       const [label] = resourceManager.dataGraph.value.getObjects(
         conceptScheme,
@@ -42,6 +43,7 @@ const vocabularies = computed(() => {
 const collections = computed(() => {
   const items = resourceManager.dataGraph.value
     .getSubjects(rdf.type, skos.Collection, null)
+    .filter((collection) => collection.termType === 'NamedNode')
     .map((collection) => {
       const [label] = resourceManager.dataGraph.value.getObjects(collection, skos.prefLabel, null)
       return {
@@ -56,6 +58,7 @@ const collections = computed(() => {
 const concepts = computed(() => {
   const items = resourceManager.dataGraph.value
     .getSubjects(rdf.type, skos.Concept, null)
+    .filter((concept) => concept.termType === 'NamedNode')
     .map((concept) => {
       const [label] = resourceManager.dataGraph.value.getObjects(concept, skos.prefLabel, null)
       return {

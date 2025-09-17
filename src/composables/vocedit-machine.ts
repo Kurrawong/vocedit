@@ -2,14 +2,17 @@ import { provide, inject } from 'vue'
 import { useMachine } from '@xstate/vue'
 import { voceditMachine } from '@/vocedit-machine'
 import type { CreateResourceManagerReturn } from '@/types'
+import type { Router } from 'vue-router'
 
 type VocEditMachine = ReturnType<typeof voceditMachine>
 type UseMachineReturn = ReturnType<typeof useMachine<VocEditMachine>>
 
 const VOCEDIT_MACHINE_KEY = Symbol('vocedit-machine')
 
-export function createVocEditMachine(resourceManager: CreateResourceManagerReturn) {
-  const machine = useMachine(voceditMachine({ resourceManager, fileHandle: null }))
+export function createVocEditMachine(resourceManager: CreateResourceManagerReturn, router: Router) {
+  const machine = useMachine(
+    voceditMachine({ resourceManager, fileHandle: null, resourceToDelete: null, router }),
+  )
   provide(VOCEDIT_MACHINE_KEY, machine)
 
   return machine

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import { createResourceManager } from '@kurrawongai/shacl-ui'
 import { createVocEditMachine } from '@/composables/vocedit-machine'
 import AppMenubar from '@/components/AppMenubar.vue'
@@ -8,10 +8,12 @@ import { Toaster } from '@/components/ui/sonner'
 // css import required for vue-sonner v2
 import 'vue-sonner/style.css'
 import vocpub from '@/assets/vocpub.ttl?raw'
+import DeleteResourceDialog from '@/components/DeleteResourceDialog.vue'
 
+const router = useRouter()
 const resourceManager = createResourceManager()
 resourceManager.resetShapesGraph(vocpub)
-createVocEditMachine(resourceManager)
+createVocEditMachine(resourceManager, router)
 </script>
 
 <template>
@@ -24,4 +26,6 @@ createVocEditMachine(resourceManager)
   </Main>
 
   <Toaster />
+
+  <DeleteResourceDialog />
 </template>

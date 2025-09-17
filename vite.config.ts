@@ -12,36 +12,43 @@ import dts from 'vite-plugin-dts'
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-    tailwindcss(),
-    libCss(),
-    dts({ tsconfigPath: './tsconfig.app.json' }),
-  ],
-  define: {
-    __APP_VERSION__: JSON.stringify(packageJson.version),
-  },
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+export default defineConfig(({ mode }) => {
+  const isLibMode = mode === 'lib'
+
+  return {
+    plugins: [
+      vue(),
+      vueDevTools(),
+      tailwindcss(),
+      ...(isLibMode ? [libCss(), dts({ tsconfigPath: './tsconfig.app.json' })] : []),
+    ],
+    define: {
+      __APP_VERSION__: JSON.stringify(packageJson.version),
     },
-  },
-  build: {
-    lib: {
-      entry: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/index.ts'),
-      name: 'vocedit',
-      fileName: 'index',
-    },
-    rollupOptions: {
-      external: ['vue', 'vue-router'],
-      output: {
-        globals: {
-          vue: 'Vue',
-          'vue-router': 'VueRouter',
-        },
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
-  },
+    build: isLibMode
+      ? {
+          lib: {
+            entry: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/index.ts'),
+            name: 'vocedit',
+            fileName: 'index',
+          },
+          rollupOptions: {
+            external: ['vue', 'vue-router'],
+            output: {
+              globals: {
+                vue: 'Vue',
+                'vue-router': 'VueRouter',
+              },
+            },
+          },
+        }
+      : {
+          // App mode - will generate index.html
+        },
+  }
 })
