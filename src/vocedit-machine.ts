@@ -128,7 +128,6 @@ export const voceditMachine = (appState: {
         on: {
           'project.open.file.cancel': {
             target: 'empty',
-            actions: () => toast.error('Open project cancelled'),
           },
         },
         invoke: {
@@ -145,6 +144,12 @@ export const voceditMachine = (appState: {
                 stack: error?.stack,
                 cause: (error as Error & { cause?: unknown })?.cause,
               })
+
+              if (!error?.message?.includes('aborted')) {
+                toast.error('Failed to open project', {
+                  description: error?.message,
+                })
+              }
             },
           },
           onDone: {
@@ -203,7 +208,6 @@ export const voceditMachine = (appState: {
               },
               'resource.create.cancel': {
                 target: 'idle',
-                actions: () => toast.message('Create resource cancelled'),
               },
             },
           },
@@ -240,12 +244,9 @@ export const voceditMachine = (appState: {
               },
               'resource.delete.cancel': {
                 target: 'idle',
-                actions: [
-                  () => toast.message('Delete resource cancelled'),
-                  assign({
-                    resourceToDelete: null,
-                  }),
-                ],
+                actions: assign({
+                  resourceToDelete: null,
+                }),
               },
             },
           },
