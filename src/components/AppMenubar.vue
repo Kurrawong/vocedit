@@ -63,7 +63,7 @@ const openIssueTracker = () => {
 
     <!-- TODO: this should be when the project is opened -->
     <MenubarMenu v-if="snapshot.matches('opened')">
-      <MenubarTrigger>Resources</MenubarTrigger>
+      <MenubarTrigger>Resource</MenubarTrigger>
       <MenubarContent>
         <MenubarItem @click="send({ type: 'resource.create' })">Create new</MenubarItem>
       </MenubarContent>
