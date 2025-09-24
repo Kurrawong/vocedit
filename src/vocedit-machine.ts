@@ -29,7 +29,10 @@ export const voceditMachine = (appState: {
         | { type: 'project.close' }
         | { type: 'resource.delete'; resourceIri: NamedNode }
         | { type: 'resource.delete.confirm' }
-        | { type: 'resource.delete.cancel' },
+        | { type: 'resource.delete.cancel' }
+        | { type: 'resource.create' }
+        | { type: 'resource.create.confirm' }
+        | { type: 'resource.create.cancel' },
     },
     guards: {},
     actors: {
@@ -91,6 +94,13 @@ export const voceditMachine = (appState: {
             return {
               deletedResourceIri: input.resourceIri.value,
             }
+          },
+        )
+      })(),
+      createResource: (() => {
+        return fromPromise(
+          async ({ input }: { input: { resourceManager: CreateResourceManagerReturn } }) => {
+            console.log('Inside create resource actor')
           },
         )
       })(),
@@ -172,6 +182,54 @@ export const voceditMachine = (appState: {
                 actions: assign({
                   resourceToDelete: ({ event }) => event.resourceIri,
                 }),
+              },
+              'resource.create': [
+                {
+                  target: 'createResourceDialog',
+                  guard: ({ context }) => !context.resourceManager.isEditing.value,
+                },
+                {
+                  guard: () => true,
+                  actions: () => toast.error('Please stop editing before creating a resource'),
+                  target: 'idle',
+                },
+              ],
+            },
+          },
+          createResourceDialog: {
+            on: {
+              'resource.create.confirm': {
+                target: 'createResource',
+              },
+              'resource.create.cancel': {
+                target: 'idle',
+                actions: () => toast.message('Create resource cancelled'),
+              },
+            },
+          },
+          createResource: {
+            invoke: {
+              id: 'create-resource',
+              src: 'createResource',
+              input: ({ context }) => ({
+                resourceManager: context.resourceManager,
+              }),
+              onError: {
+                target: 'idle',
+                actions: ({ event }) => {
+                  const error = event.error as Error | undefined
+                  console.error('Create resource error:', error)
+                  console.error('Error details:', {
+                    message: error?.message,
+                    stack: error?.stack,
+                    cause: (error as Error & { cause?: unknown })?.cause,
+                  })
+                  toast.error(`Failed to create resource: ${error?.message || 'Unknown error'}`)
+                },
+              },
+              onDone: {
+                target: 'idle',
+                actions: () => toast.success('Resource created'),
               },
             },
           },

@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
 import vocpub from '@/assets/vocpub.ttl?raw'
 import DeleteResourceDialog from '@/components/DeleteResourceDialog.vue'
+import CreateResourceDialog from '@/components/CreateResourceDialog.vue'
 
 const router = useRouter()
 const resourceManager = createResourceManager()
@@ -28,4 +29,5 @@ createVocEditMachine(resourceManager, router)
   <Toaster />
 
   <DeleteResourceDialog />
+  <CreateResourceDialog />
 </template>
