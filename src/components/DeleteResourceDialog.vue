@@ -29,11 +29,18 @@ const handleOpenChange = (open: boolean) => {
     handleCancel()
   }
 }
+
+const handlePointerDownOutside = (event: Event) => {
+  event.preventDefault()
+}
 </script>
 
 <template>
   <Dialog :open="isOpen" @update:open="handleOpenChange">
-    <DialogContent>
+    <DialogContent
+      :disable-outside-pointer-events="true"
+      @pointer-down-outside="handlePointerDownOutside"
+    >
       <DialogHeader>
         <DialogTitle>Delete Resource</DialogTitle>
         <DialogDescription>
