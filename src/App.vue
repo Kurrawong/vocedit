@@ -26,7 +26,7 @@ createVocEditMachine(resourceManager, router)
     <RouterView />
   </Main>
 
-  <Toaster />
+  <Toaster position="top-right" />
 
   <DeleteResourceDialog />
   <CreateResourceDialog />
