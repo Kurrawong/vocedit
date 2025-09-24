@@ -149,6 +149,7 @@ export const voceditMachine = (appState: {
         },
       },
       opened: {
+        initial: 'idle',
         on: {
           'project.close': {
             target: 'empty',
@@ -162,73 +163,79 @@ export const voceditMachine = (appState: {
           'project.save': {
             target: 'saving',
           },
-          'resource.delete': {
-            target: 'deleteResourceDialog',
-            actions: assign({
-              resourceToDelete: ({ event }) => event.resourceIri,
-            }),
-          },
         },
-      },
-      deleteResourceDialog: {
-        on: {
-          'resource.delete.confirm': {
-            target: 'deleteResource',
-          },
-          'resource.delete.cancel': {
-            target: 'opened',
-            actions: [
-              () => toast.message('Delete resource cancelled'),
-              assign({
-                resourceToDelete: null,
-              }),
-            ],
-          },
-        },
-      },
-      deleteResource: {
-        invoke: {
-          id: 'delete-resource',
-          src: 'deleteResource',
-          input: ({ context }) => ({
-            resourceManager: context.resourceManager,
-            resourceIri: context.resourceToDelete!,
-          }),
-          onError: {
-            target: 'opened',
-            actions: [
-              ({ event }) => {
-                const error = event.error as Error | undefined
-                console.error('Delete resource error:', error)
-                console.error('Error details:', {
-                  message: error?.message,
-                  stack: error?.stack,
-                  cause: (error as Error & { cause?: unknown })?.cause,
-                })
-                toast.error(`Failed to delete resource: ${error?.message || 'Unknown error'}`)
+        states: {
+          idle: {
+            on: {
+              'resource.delete': {
+                target: 'deleteResourceDialog',
+                actions: assign({
+                  resourceToDelete: ({ event }) => event.resourceIri,
+                }),
               },
-              assign({
-                resourceToDelete: null,
-              }),
-            ],
+            },
           },
-          onDone: {
-            target: 'opened',
-            actions: [
-              () => toast.success('Resource deleted'),
-              assign({
-                resourceToDelete: null,
+          deleteResourceDialog: {
+            on: {
+              'resource.delete.confirm': {
+                target: 'deleteResource',
+              },
+              'resource.delete.cancel': {
+                target: 'idle',
+                actions: [
+                  () => toast.message('Delete resource cancelled'),
+                  assign({
+                    resourceToDelete: null,
+                  }),
+                ],
+              },
+            },
+          },
+          deleteResource: {
+            invoke: {
+              id: 'delete-resource',
+              src: 'deleteResource',
+              input: ({ context }) => ({
+                resourceManager: context.resourceManager,
+                resourceIri: context.resourceToDelete!,
               }),
-              ({ context, event }) => {
-                // Check if the deleted resource IRI matches the current route's query parameter
-                const currentIri = context.router.currentRoute.value.query.iri as string
-                const deletedResourceIri = event.output.deletedResourceIri
+              onError: {
+                target: 'idle',
+                actions: [
+                  ({ event }) => {
+                    const error = event.error as Error | undefined
+                    console.error('Delete resource error:', error)
+                    console.error('Error details:', {
+                      message: error?.message,
+                      stack: error?.stack,
+                      cause: (error as Error & { cause?: unknown })?.cause,
+                    })
+                    toast.error(`Failed to delete resource: ${error?.message || 'Unknown error'}`)
+                  },
+                  assign({
+                    resourceToDelete: null,
+                  }),
+                ],
+              },
+              onDone: {
+                target: 'idle',
+                actions: [
+                  () => toast.success('Resource deleted'),
+                  assign({
+                    resourceToDelete: null,
+                  }),
+                  ({ context, event }) => {
+                    // Check if the deleted resource IRI matches the current route's query parameter
+                    const currentIri = context.router.currentRoute.value.query.iri as string
+                    const deletedResourceIri = event.output.deletedResourceIri
 
-                if (currentIri === deletedResourceIri) {
-                  context.router.push('/')
-                }
+                    if (currentIri === deletedResourceIri) {
+                      context.router.push('/')
+                    }
+                  },
+                ],
               },
-            ],
+            },
           },
         },
       },
