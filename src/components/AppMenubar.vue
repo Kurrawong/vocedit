@@ -5,14 +5,10 @@ import {
   Menubar,
   MenubarContent,
   MenubarItem,
-  MenubarSub,
   MenubarMenu,
   MenubarSeparator,
   MenubarTrigger,
-  MenubarSubTrigger,
-  MenubarSubContent,
 } from '@/components/ui/menubar'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import AboutDialog from '@/components/AboutDialog.vue'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 
@@ -46,7 +42,7 @@ const openIssueTracker = () => {
       <MenubarTrigger>File</MenubarTrigger>
       <MenubarContent>
         <MenubarItem disabled> New (coming soon) </MenubarItem>
-        <MenubarItem :disabled="!snapshot.matches('empty')" @click="send({ type: 'project.open' })">
+        <MenubarItem :disabled="snapshot.matches('opened')" @click="send({ type: 'project.open' })">
           Open
         </MenubarItem>
         <MenubarItem
@@ -66,35 +62,10 @@ const openIssueTracker = () => {
     </MenubarMenu>
 
     <!-- TODO: this should be when the project is opened -->
-    <MenubarMenu v-if="!snapshot.matches('empty')">
+    <MenubarMenu v-if="snapshot.matches('opened')">
       <MenubarTrigger>Resources</MenubarTrigger>
       <MenubarContent>
-        <MenubarSub>
-          <MenubarSubTrigger>Vocabularies</MenubarSubTrigger>
-          <MenubarSubContent>
-            <Tooltip>
-              <TooltipTrigger>
-                <!-- TODO: add condition for disabled -->
-                <MenubarItem disabled>Create new</MenubarItem>
-              </TooltipTrigger>
-              <TooltipContent>A vocabulary already exists</TooltipContent>
-            </Tooltip>
-          </MenubarSubContent>
-        </MenubarSub>
-
-        <MenubarSub>
-          <MenubarSubTrigger>Collections</MenubarSubTrigger>
-          <MenubarSubContent>
-            <MenubarItem @click="console.log('create new collection')">Create new</MenubarItem>
-          </MenubarSubContent>
-        </MenubarSub>
-
-        <MenubarSub>
-          <MenubarSubTrigger>Concepts</MenubarSubTrigger>
-          <MenubarSubContent>
-            <MenubarItem @click="console.log('create new concept')">Create new</MenubarItem>
-          </MenubarSubContent>
-        </MenubarSub>
+        <MenubarItem @click="console.log('create new resource')">Create new</MenubarItem>
       </MenubarContent>
     </MenubarMenu>
   </Menubar>
