@@ -10,6 +10,7 @@ import 'vue-sonner/style.css'
 import vocpub from '@/assets/vocpub.ttl?raw'
 import DeleteResourceDialog from '@/components/DeleteResourceDialog.vue'
 import CreateResourceDialog from '@/components/CreateResourceDialog.vue'
+import ValidationReport from '@/components/ValidationReport.vue'
 
 const router = useRouter()
 const resourceManager = createResourceManager()
@@ -30,4 +31,5 @@ createVocEditMachine(resourceManager, router)
 
   <DeleteResourceDialog />
   <CreateResourceDialog />
+  <ValidationReport />
 </template>

@@ -35,7 +35,9 @@ export const voceditMachine = (appState: {
         | { type: 'resource.delete.cancel' }
         | { type: 'resource.create' }
         | { type: 'resource.create.confirm'; data: { type: NamedNode; iri: NamedNode } }
-        | { type: 'resource.create.cancel' },
+        | { type: 'resource.create.cancel' }
+        | { type: 'validation.view.report' }
+        | { type: 'validation.view.report.close' },
     },
     guards: {},
     actors: {
@@ -253,6 +255,9 @@ export const voceditMachine = (appState: {
                   target: 'idle',
                 },
               ],
+              'validation.view.report': {
+                target: 'validationReport',
+              },
             },
           },
           createResourceDialog: {
@@ -357,6 +362,13 @@ export const voceditMachine = (appState: {
                     }
                   },
                 ],
+              },
+            },
+          },
+          validationReport: {
+            on: {
+              'validation.view.report.close': {
+                target: 'idle',
               },
             },
           },

@@ -67,6 +67,13 @@ const openIssueTracker = () => {
         <MenubarItem @click="send({ type: 'resource.create' })">Create new</MenubarItem>
       </MenubarContent>
     </MenubarMenu>
+
+    <MenubarMenu v-if="snapshot.matches('opened')">
+      <MenubarTrigger>Validation</MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem @click="send({ type: 'validation.view.report' })">View report</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
   </Menubar>
 
   <AboutDialog ref="aboutDialogRef" />
