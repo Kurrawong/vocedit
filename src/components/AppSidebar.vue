@@ -32,7 +32,7 @@ const vocabularies = computed(() => {
         null,
       )
       return {
-        title: label.value || conceptScheme.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        title: label?.value || conceptScheme.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
         iri: conceptScheme.value,
       }
     })
@@ -62,7 +62,7 @@ const concepts = computed(() => {
     .map((concept) => {
       const [label] = resourceManager.dataGraph.value.getObjects(concept, skos.prefLabel, null)
       return {
-        title: label.value || concept.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        title: label?.value || concept.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
         iri: concept.value,
       }
     })

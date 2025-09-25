@@ -123,6 +123,7 @@ export const voceditMachine = (appState: {
 
             const quads = [quad(input.data.iri, rdf.type, input.data.type)]
             input.resourceManager.dataGraph.value.addQuads(quads)
+            input.resourceManager.startEditing()
             input.resourceManager.save()
 
             return {
