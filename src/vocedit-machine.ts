@@ -1,9 +1,12 @@
 import { showOpenFilePicker } from 'show-open-file-picker'
 import { assign, fromPromise, setup } from 'xstate'
 import { toast } from 'vue-sonner'
-import type { NamedNode } from 'n3'
+import n3, { type NamedNode } from 'n3'
+import { rdf } from '@/namespaces'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
+
+const { quad } = n3.DataFactory
 
 export const voceditMachine = (appState: {
   resourceManager: CreateResourceManagerReturn
@@ -31,7 +34,7 @@ export const voceditMachine = (appState: {
         | { type: 'resource.delete.confirm' }
         | { type: 'resource.delete.cancel' }
         | { type: 'resource.create' }
-        | { type: 'resource.create.confirm' }
+        | { type: 'resource.create.confirm'; data: { type: NamedNode; iri: NamedNode } }
         | { type: 'resource.create.cancel' },
     },
     guards: {},
@@ -99,8 +102,35 @@ export const voceditMachine = (appState: {
       })(),
       createResource: (() => {
         return fromPromise(
-          async ({ input }: { input: { resourceManager: CreateResourceManagerReturn } }) => {
-            console.log('Inside create resource actor')
+          async ({
+            input,
+          }: {
+            input: {
+              resourceManager: CreateResourceManagerReturn
+              data: { type: NamedNode; iri: NamedNode }
+            }
+          }) => {
+            if (!input.data || !input.data.type || !input.data.iri) {
+              throw new Error('Missing required fields: type and iri are required')
+            }
+
+            // Create the resource
+            console.log('Creating resource:', input.data)
+
+            if (input.resourceManager.isEditing.value) {
+              input.resourceManager.cancelEditing()
+            }
+
+            const quads = [quad(input.data.iri, rdf.type, input.data.type)]
+            input.resourceManager.dataGraph.value.addQuads(quads)
+            input.resourceManager.save()
+
+            return {
+              createdResource: {
+                type: input.data.type,
+                iri: input.data.iri,
+              },
+            }
           },
         )
       })(),
@@ -215,8 +245,14 @@ export const voceditMachine = (appState: {
             invoke: {
               id: 'create-resource',
               src: 'createResource',
-              input: ({ context }) => ({
+              input: ({ context, event }) => ({
                 resourceManager: context.resourceManager,
+                data: (
+                  event as {
+                    type: 'resource.create.confirm'
+                    data: { type: NamedNode; iri: NamedNode }
+                  }
+                ).data,
               }),
               onError: {
                 target: 'idle',
@@ -233,7 +269,11 @@ export const voceditMachine = (appState: {
               },
               onDone: {
                 target: 'idle',
-                actions: () => toast.success('Resource created'),
+                actions: [
+                  () => toast.success('Resource created'),
+                  ({ context, event }) =>
+                    context.router.push('/resource?iri=' + event.output.createdResource.iri.value),
+                ],
               },
             },
           },

@@ -47,7 +47,7 @@ const collections = computed(() => {
     .map((collection) => {
       const [label] = resourceManager.dataGraph.value.getObjects(collection, skos.prefLabel, null)
       return {
-        title: label.value || collection.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        title: label?.value || collection.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
         iri: collection.value,
       }
     })
