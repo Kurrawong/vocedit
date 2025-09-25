@@ -17,10 +17,14 @@ import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
 
 const { snapshot, send } = useVocEditMachine()
 const isOpen = computed(() => snapshot.value.matches({ opened: 'validationReport' }))
-const { dataGraphPointer, validator } = useResourceManagerContext()
+const { dataGraph, dataGraphPointer, validator } = useResourceManagerContext()
 const validationReport = ref('')
 
 async function generateValidationReport() {
+  if (!isOpen.value) {
+    return
+  }
+
   try {
     validator.value.validationEngine.initReport()
     const result = await validator.value.validate(dataGraphPointer.value)
@@ -54,7 +58,7 @@ async function generateValidationReport() {
 }
 
 watch(
-  dataGraphPointer,
+  [dataGraph, isOpen],
   () => {
     generateValidationReport()
   },
