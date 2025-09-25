@@ -2,7 +2,7 @@ import { showOpenFilePicker } from 'show-open-file-picker'
 import { assign, fromPromise, setup } from 'xstate'
 import { toast } from 'vue-sonner'
 import n3, { type NamedNode } from 'n3'
-import { rdf } from '@/namespaces'
+import { rdf, rdfs, skos } from '@/namespaces'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
 
@@ -114,15 +114,38 @@ export const voceditMachine = (appState: {
               throw new Error('Missing required fields: type and iri are required')
             }
 
-            // Create the resource
-            console.log('Creating resource:', input.data)
-
             if (input.resourceManager.isEditing.value) {
               input.resourceManager.cancelEditing()
             }
 
-            const quads = [quad(input.data.iri, rdf.type, input.data.type)]
-            input.resourceManager.dataGraph.value.addQuads(quads)
+            // Create the resource
+            if (input.data.type.equals(skos.ConceptScheme)) {
+              // Create a concept scheme
+              const quads = [quad(input.data.iri, rdf.type, input.data.type)]
+              input.resourceManager.dataGraph.value.addQuads(quads)
+            } else {
+              // Create a collection or concept
+              const conceptSchemes = input.resourceManager.dataGraph.value.getSubjects(
+                rdf.type,
+                skos.ConceptScheme,
+                null,
+              )
+              if (conceptSchemes.length === 0) {
+                throw new Error('No concept scheme found')
+              }
+              if (conceptSchemes.length > 1) {
+                throw new Error('Multiple concept schemes found')
+              }
+              const conceptScheme = conceptSchemes[0]
+
+              const quads = [
+                quad(input.data.iri, rdf.type, input.data.type),
+                quad(input.data.iri, skos.inScheme, conceptScheme),
+                quad(input.data.iri, rdfs.isDefinedBy, conceptScheme),
+              ]
+              input.resourceManager.dataGraph.value.addQuads(quads)
+            }
+
             input.resourceManager.startEditing()
             input.resourceManager.save()
 
