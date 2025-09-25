@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { useRouter } from 'vue-router'
 import n3 from 'n3'
-import { conceptSchemeShape, conceptShape } from '@/shapes'
+import { conceptSchemeShape, collectionShape, conceptShape } from '@/shapes'
 import { ResourceShell, useResourceManagerContext } from '@kurrawongai/shacl-ui'
 import { rdf, skos } from '@/namespaces'
 
@@ -39,7 +39,7 @@ const nodeShape = computed(() => {
     if (cls.equals(skos.ConceptScheme)) {
       return conceptSchemeShape
     } else if (cls.equals(skos.Collection)) {
-      return null
+      return collectionShape
     } else if (cls.equals(skos.Concept)) {
       return conceptShape
     }

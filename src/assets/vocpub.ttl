@@ -597,6 +597,26 @@ schema:dateModified rdfs:label "date modified" .
     ] ;
 .
 
+<Shui-Collection> a sh:NodeShape ;
+    sh:targetClass skos:Collection ;
+    dash:defaultViewForRole dash:all ;
+    sh:property <prefLabel> ;
+    sh:property <definition> ;
+    sh:property <provenance-properties-04> ;
+    sh:property [
+        sh:path skos:inScheme ;
+        sh:nodeKind sh:IRI ;
+        sh:class skos:ConceptScheme ;
+        sh:group <Group-concept-scheme-relationships> ;
+    ] ;
+    sh:property [
+        sh:path skos:member ;
+        sh:nodeKind sh:IRI ;
+        sh:class skos:Concept ;
+        sh:group <Group-concept-relationships> ;
+    ]
+.
+
 <Shui-ConceptScheme> a sh:NodeShape ;
     sh:targetClass skos:ConceptScheme ;
     dash:defaultViewForRole dash:all ;
@@ -681,10 +701,10 @@ schema:dateModified rdfs:label "date modified" .
     sh:property <prefLabel> ;
     sh:property <definition> ;
     sh:property <provenance-properties-04> ;
-    # sh:property <Requirement-2.1.9> ;
 .
 
 <prefLabel> sh:group <Group-annotations> .
+<prefLabel> sh:order 0 .
 <definition> sh:group <Group-annotations> ;
     dash:singleLine false ;
 .
