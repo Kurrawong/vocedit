@@ -2,6 +2,13 @@
 
 ## Changelog
 
+### 0.3.0
+
+- Add create resource functionality
+- Add virtualised sidebar list for concepts to improve performance
+- Add SHACL validation report view
+- Add provisional SKOS Collection SHACL UI shapes
+
 ### 0.2.0
 
 - Add delete resource functionality
