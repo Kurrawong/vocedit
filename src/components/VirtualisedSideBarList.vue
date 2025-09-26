@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type LucideIcon } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 
 import {
   SidebarMenuButton,
@@ -43,7 +43,7 @@ function handleDelete(iri: string) {
   send({ type: 'resource.delete', resourceIri: namedNode(iri) })
 }
 
-const { list, containerProps, wrapperProps } = useVirtualList(props.items, {
+const { list, containerProps, wrapperProps } = useVirtualList(toRef(props, 'items'), {
   itemHeight: 32,
 })
 </script>
