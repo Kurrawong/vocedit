@@ -7,7 +7,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 <template>
   <SidebarProvider default-open>
     <AppSidebar />
-    <SidebarInset class="h-screen flex flex-col">
+    <SidebarInset class="h-screen flex flex-col overflow-hidden">
       <slot name="header" />
 
       <header class="flex h-16 shrink-0 items-center gap-2">
@@ -18,7 +18,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
         </div>
       </header>
 
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto min-h-0">
         <slot />
       </div>
     </SidebarInset>

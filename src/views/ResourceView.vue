@@ -50,7 +50,9 @@ const nodeShape = computed(() => {
 </script>
 
 <template>
-  <div class="px-6">
-    <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" />
+  <div class="h-full px-6 flex flex-col">
+    <div class="flex-1 min-h-0">
+      <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" />
+    </div>
   </div>
 </template>
