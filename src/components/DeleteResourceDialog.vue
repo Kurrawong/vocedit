@@ -13,7 +13,7 @@ import { useVocEditMachine } from '@/composables/vocedit-machine'
 
 const { snapshot, send } = useVocEditMachine()
 
-const isOpen = computed(() => snapshot.value.matches('deleteResourceDialog'))
+const isOpen = computed(() => snapshot.value.matches({ opened: 'deleteResourceDialog' }))
 const resourceToDelete = computed(() => snapshot.value.context.resourceToDelete)
 
 const handleConfirm = () => {
@@ -29,11 +29,18 @@ const handleOpenChange = (open: boolean) => {
     handleCancel()
   }
 }
+
+const handlePointerDownOutside = (event: Event) => {
+  event.preventDefault()
+}
 </script>
 
 <template>
   <Dialog :open="isOpen" @update:open="handleOpenChange">
-    <DialogContent>
+    <DialogContent
+      :disable-outside-pointer-events="true"
+      @pointer-down-outside="handlePointerDownOutside"
+    >
       <DialogHeader>
         <DialogTitle>Delete Resource</DialogTitle>
         <DialogDescription>

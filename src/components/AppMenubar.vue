@@ -42,7 +42,7 @@ const openIssueTracker = () => {
       <MenubarTrigger>File</MenubarTrigger>
       <MenubarContent>
         <MenubarItem disabled> New (coming soon) </MenubarItem>
-        <MenubarItem :disabled="!snapshot.matches('empty')" @click="send({ type: 'project.open' })">
+        <MenubarItem :disabled="snapshot.matches('opened')" @click="send({ type: 'project.open' })">
           Open
         </MenubarItem>
         <MenubarItem
@@ -58,6 +58,20 @@ const openIssueTracker = () => {
         >
           Close
         </MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+
+    <MenubarMenu v-if="snapshot.matches('opened')">
+      <MenubarTrigger>Resource</MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem @click="send({ type: 'resource.create' })">Create new</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+
+    <MenubarMenu v-if="snapshot.matches('opened')">
+      <MenubarTrigger>Validation</MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem @click="send({ type: 'validation.view.report' })">View report</MenubarItem>
       </MenubarContent>
     </MenubarMenu>
   </Menubar>

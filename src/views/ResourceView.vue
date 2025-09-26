@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { useRouter } from 'vue-router'
 import n3 from 'n3'
+import { conceptSchemeShape, collectionShape, conceptShape } from '@/shapes'
 import { ResourceShell, useResourceManagerContext } from '@kurrawongai/shacl-ui'
 import { rdf, skos } from '@/namespaces'
 
@@ -36,11 +37,11 @@ const nodeShape = computed(() => {
 
   for (const cls of classes) {
     if (cls.equals(skos.ConceptScheme)) {
-      return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-ConceptScheme')
+      return conceptSchemeShape
     } else if (cls.equals(skos.Collection)) {
-      return null
+      return collectionShape
     } else if (cls.equals(skos.Concept)) {
-      return namedNode('https://linked.data.gov.au/def/vocpub/validator/Shui-Concept')
+      return conceptShape
     }
   }
 
@@ -49,7 +50,9 @@ const nodeShape = computed(() => {
 </script>
 
 <template>
-  <div class="px-6">
-    <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" />
+  <div class="h-full px-6 flex flex-col">
+    <div class="flex-1 min-h-0">
+      <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" />
+    </div>
   </div>
 </template>

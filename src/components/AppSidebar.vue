@@ -17,6 +17,7 @@ import { rdf, skos } from '@/namespaces'
 import { Separator } from '@/components/ui/separator'
 import { Command } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import VirtualisedSideBarList from '@/components/VirtualisedSideBarList.vue'
 
 const resourceManager = useResourceManagerContext()
 const { snapshot } = useVocEditMachine()
@@ -32,7 +33,7 @@ const vocabularies = computed(() => {
         null,
       )
       return {
-        title: label.value || conceptScheme.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        title: label?.value || conceptScheme.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
         iri: conceptScheme.value,
       }
     })
@@ -47,7 +48,7 @@ const collections = computed(() => {
     .map((collection) => {
       const [label] = resourceManager.dataGraph.value.getObjects(collection, skos.prefLabel, null)
       return {
-        title: label.value || collection.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        title: label?.value || collection.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
         iri: collection.value,
       }
     })
@@ -62,7 +63,7 @@ const concepts = computed(() => {
     .map((concept) => {
       const [label] = resourceManager.dataGraph.value.getObjects(concept, skos.prefLabel, null)
       return {
-        title: label.value || concept.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
+        title: label?.value || concept.value.split('#').slice(-1)[0].split('/').slice(-1)[0],
         iri: concept.value,
       }
     })
@@ -101,17 +102,19 @@ const concepts = computed(() => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent class="flex flex-col h-full overflow-hidden">
+        <SidebarGroup class="flex-shrink-0">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarList label="Vocabularies" :items="vocabularies" />
               <Separator />
               <SidebarList label="Collections" :items="collections" />
               <Separator />
-              <SidebarList label="Concepts" :items="concepts" />
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup class="flex-1 min-h-0 overflow-hidden">
+          <VirtualisedSideBarList label="Concepts" :items="concepts" />
         </SidebarGroup>
       </SidebarContent>
     </template>
