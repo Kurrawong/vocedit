@@ -17,6 +17,7 @@ import { rdf, skos } from '@/namespaces'
 import { Separator } from '@/components/ui/separator'
 import { Command } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import VirtualisedSideBarList from '@/components/VirtualisedSideBarList.vue'
 
 const resourceManager = useResourceManagerContext()
 const { snapshot } = useVocEditMachine()
@@ -101,17 +102,19 @@ const concepts = computed(() => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent class="flex flex-col h-full overflow-hidden">
+        <SidebarGroup class="flex-shrink-0">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarList label="Vocabularies" :items="vocabularies" />
               <Separator />
               <SidebarList label="Collections" :items="collections" />
               <Separator />
-              <SidebarList label="Concepts" :items="concepts" />
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup class="flex-1 min-h-0 overflow-hidden">
+          <VirtualisedSideBarList label="Concepts" :items="concepts" />
         </SidebarGroup>
       </SidebarContent>
     </template>
