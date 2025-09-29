@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
+import { prettify } from '@/lib/prettify'
 
 const { snapshot, send } = useVocEditMachine()
 const isOpen = computed(() => snapshot.value.matches({ opened: 'validationReport' }))
@@ -43,12 +44,12 @@ async function generateValidationReport() {
       },
     })
     writer.addQuads(Array.from(result.dataset))
-    writer.end((err, result) => {
+    writer.end(async (err, result) => {
       if (err) {
         console.error('Error serializing validation report:', err)
         validationReport.value = 'Error generating validation report'
       } else {
-        validationReport.value = result
+        validationReport.value = await prettify(result)
       }
     })
   } catch (error) {
@@ -99,7 +100,7 @@ function handleClose() {
                 <Badge variant="outline" class="text-xs">Turtle</Badge>
               </div>
               <pre
-                class="text-xs leading-relaxed whitespace-pre-wrap font-mono text-muted-foreground bg-background/50 p-3 rounded border overflow-x-auto"
+                class="text-xs leading-relaxed font-mono text-muted-foreground bg-background/50 p-3 rounded border overflow-auto"
                 >{{ validationReport }}</pre
               >
             </div>
