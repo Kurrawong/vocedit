@@ -35,6 +35,9 @@ importers:
       n3:
         specifier: ^1.26.0
         version: 1.26.0
+      pyodide:
+        specifier: ^0.28.3
+        version: 0.28.3
       rdf-ext:
         specifier: 2.5.2
         version: 2.5.2(web-streams-polyfill@3.3.3)
@@ -5413,6 +5416,10 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  pyodide@0.28.3:
+    resolution: {integrity: sha512-rtCsyTU55oNGpLzSVuAd55ZvruJDEX8o6keSdWKN9jPeBVSNlynaKFG7eRqkiIgU7i2M6HEgYtm0atCEQX3u4A==}
+    engines: {node: '>=18.0.0'}
 
   qs@6.14.0:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
@@ -14009,6 +14016,13 @@ snapshots:
       once: 1.4.0
 
   punycode@2.3.1: {}
+
+  pyodide@0.28.3:
+    dependencies:
+      ws: 8.18.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   qs@6.14.0:
     dependencies:

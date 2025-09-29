@@ -66,6 +66,7 @@
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.541.0",
     "n3": "^1.26.0",
+    "pyodide": "^0.28.3",
     "rdf-ext": "2.5.2",
     "reka-ui": "^2.4.1",
     "show-open-file-picker": "^0.4.0",
