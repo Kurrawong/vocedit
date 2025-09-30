@@ -17,6 +17,7 @@ const emit = defineEmits<Emits>()
 
 const isOpen = ref(false)
 const appVersion = __APP_VERSION__
+const buildCommit = import.meta.env.VITE_BUILD_COMMIT || 'dev'
 
 const open = () => {
   isOpen.value = true
@@ -54,6 +55,8 @@ defineExpose({
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="font-medium">Version:</div>
           <div>{{ appVersion }}</div>
+          <div class="font-medium">Build commit:</div>
+          <div>{{ buildCommit }}</div>
         </div>
 
         <p class="text-sm text-muted-foreground">
