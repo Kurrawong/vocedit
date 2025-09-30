@@ -54,22 +54,23 @@ defineExpose({
 
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="font-medium">Version:</div>
-          <div>{{ appVersion }}</div>
-          <div class="font-medium">Build commit:</div>
-          <div>{{ buildCommit }}</div>
-        </div>
+          <div class="overflow-auto">{{ appVersion }}</div>
 
-        <p class="text-sm text-muted-foreground">
-          Source code:
-          <a
-            class="text-primary hover:underline"
-            href="https://github.com/Kurrawong/vocedit"
-            target="_blank"
-            rel="noopener,noreferrer"
-          >
-            https://github.com/Kurrawong/vocedit
-          </a>
-        </p>
+          <div class="font-medium">Build commit:</div>
+          <div class="overflow-auto">{{ buildCommit }}</div>
+
+          <div class="font-medium">Source code:</div>
+          <div class="overflow-auto">
+            <a
+              class="text-primary hover:underline"
+              href="https://github.com/Kurrawong/vocedit"
+              target="_blank"
+              rel="noopener,noreferrer"
+            >
+              https://github.com/Kurrawong/vocedit
+            </a>
+          </div>
+        </div>
       </div>
 
       <DialogFooter>
