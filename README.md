@@ -2,6 +2,12 @@
 
 ## Changelog
 
+### 0.4.0
+
+- Add RDFLib's `longturtle` format with canonicalisation as a prettify function
+- Saving now prettifies the RDF Turtle before saving
+- Validation report is now prettified before displaying
+
 ### 0.3.0
 
 - Add create resource functionality

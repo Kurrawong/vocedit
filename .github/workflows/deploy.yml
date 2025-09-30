@@ -18,16 +18,17 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Build main project
+        env:
+          VITE_BUILD_COMMIT: ${{ github.sha }}
         run: pnpm build-only
 
       - name: Upload static files as artifact
-        id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ github.workspace }}/dist/

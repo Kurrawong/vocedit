@@ -11,6 +11,7 @@ import vocpub from '@/assets/vocpub.ttl?raw'
 import DeleteResourceDialog from '@/components/DeleteResourceDialog.vue'
 import CreateResourceDialog from '@/components/CreateResourceDialog.vue'
 import ValidationReport from '@/components/ValidationReport.vue'
+import SavingDialog from '@/components/SavingDialog.vue'
 
 const router = useRouter()
 const resourceManager = createResourceManager()
@@ -32,4 +33,5 @@ createVocEditMachine(resourceManager, router)
   <DeleteResourceDialog />
   <CreateResourceDialog />
   <ValidationReport />
+  <SavingDialog />
 </template>

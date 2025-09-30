@@ -5,6 +5,7 @@ import n3, { type NamedNode } from 'n3'
 import { rdf, rdfs, skos } from '@/namespaces'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
+import { prettify } from '@/lib/prettify'
 
 const { quad } = n3.DataFactory
 
@@ -21,6 +22,7 @@ export const voceditMachine = (appState: {
         fileHandle: FileSystemFileHandle | null
         resourceToDelete: NamedNode | null
         router: Router
+        savingError: string | null
       },
       events: {} as
         | { type: 'project.new' }
@@ -78,7 +80,8 @@ export const voceditMachine = (appState: {
             }
           }) => {
             const writable = await input.fileHandle.createWritable()
-            await writable.write(input.resourceManager.dataGraph.value.toString())
+            const data = await prettify(input.resourceManager.dataGraph.value.toString())
+            await writable.write(data)
             await writable.close()
 
             return {
@@ -166,6 +169,7 @@ export const voceditMachine = (appState: {
     initial: 'empty',
     context: {
       ...appState,
+      savingError: null,
     },
     states: {
       empty: {
@@ -389,21 +393,34 @@ export const voceditMachine = (appState: {
             fileHandle: context.fileHandle!,
           }),
           onError: {
-            target: 'opened',
-            actions: ({ event }) => {
-              const error = event.error as Error | undefined
-              console.error('Save project error:', error)
-              console.error('Error details:', {
-                message: error?.message,
-                stack: error?.stack,
-                cause: (error as Error & { cause?: unknown })?.cause,
-              })
-              toast.error(`Failed to save project file: ${error?.message || 'Unknown error'}`)
-            },
+            target: 'savingError',
+            actions: assign({
+              savingError: ({ event }) => {
+                const error = event.error as Error | undefined
+                const errorMessage = `Failed to save project file: ${error?.message || 'Unknown error'}`
+                console.error('Save project error:', error)
+                console.error('Error details:', {
+                  message: error?.message,
+                  stack: error?.stack,
+                  cause: (error as Error & { cause?: unknown })?.cause,
+                })
+                return errorMessage
+              },
+            }),
           },
           onDone: {
             target: 'opened',
             actions: () => toast.success('Project saved successfully'),
+          },
+        },
+      },
+      savingError: {
+        on: {
+          'project.save.cancel': {
+            target: 'opened',
+            actions: assign({
+              savingError: null,
+            }),
           },
         },
       },
