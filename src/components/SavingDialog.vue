@@ -12,8 +12,8 @@ import {
 import { Button } from '@/components/ui/button'
 
 const { snapshot, send } = useVocEditMachine()
-const isOpen = computed(() => snapshot.value.matches('saving'))
-const isSavingError = computed(() => snapshot.value.matches('savingError'))
+const isOpen = computed(() => snapshot.value.matches({ app: 'saving' }))
+const isSavingError = computed(() => snapshot.value.matches({ app: 'savingError' }))
 </script>
 
 <template>

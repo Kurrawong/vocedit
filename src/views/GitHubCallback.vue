@@ -3,9 +3,11 @@ import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { exchangeCodeForToken } from '@/github'
 import { toast } from 'vue-sonner'
+import { useVocEditMachine } from '@/composables/vocedit-machine'
 
 const route = useRoute()
 const router = useRouter()
+const { send } = useVocEditMachine()
 
 onMounted(async () => {
   try {
@@ -32,6 +34,7 @@ onMounted(async () => {
     toast.error(error instanceof Error ? error.message : 'Authentication failed')
     router.push('/')
   }
+  send({ type: 'integration.github.checking' })
 })
 </script>
 

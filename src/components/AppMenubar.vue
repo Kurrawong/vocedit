@@ -39,7 +39,6 @@ const openIssueTracker = () => {
 
 const handleGitHubSignIn = () => {
   send({ type: 'integration.github.auth' })
-  signIn()
 }
 
 const handleGitHubSignOut = () => {
@@ -134,6 +133,18 @@ const handleGitHubSignOut = () => {
             </MenubarItem>
           </MenubarSubContent>
         </MenubarSub>
+      </MenubarContent>
+    </MenubarMenu>
+
+    <MenubarMenu v-if="isGitHubAuthenticated">
+      <MenubarTrigger>GitHub Profile</MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem @click="send({ type: 'integration.github.auth.profile' })">
+          User profile
+        </MenubarItem>
+        <MenubarItem @click="handleGitHubSignOut">
+          Logout
+        </MenubarItem>
       </MenubarContent>
     </MenubarMenu>
   </Menubar>

@@ -12,6 +12,7 @@ import DeleteResourceDialog from '@/components/DeleteResourceDialog.vue'
 import CreateResourceDialog from '@/components/CreateResourceDialog.vue'
 import ValidationReport from '@/components/ValidationReport.vue'
 import SavingDialog from '@/components/SavingDialog.vue'
+import GitHubProfile from '@/components/GitHubProfile.vue'
 
 const router = useRouter()
 const resourceManager = createResourceManager()
@@ -34,4 +35,5 @@ createVocEditMachine(resourceManager, router)
   <CreateResourceDialog />
   <ValidationReport />
   <SavingDialog />
+  <GitHubProfile />
 </template>

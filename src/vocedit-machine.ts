@@ -7,6 +7,7 @@ import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
 import { prettify } from '@/lib/prettify'
 import { Octokit } from 'octokit'
+import { signIn } from '@/github'
 
 const { quad } = n3.DataFactory
 
@@ -15,6 +16,7 @@ export const voceditMachine = (appState: {
   fileHandle: FileSystemFileHandle | null
   resourceToDelete: NamedNode | null
   router: Router
+  githubUser: any | null
 }) =>
   setup({
     types: {
@@ -24,7 +26,7 @@ export const voceditMachine = (appState: {
         resourceToDelete: NamedNode | null
         router: Router
         savingError: string | null
-        // Remove isGitHubAuthenticated from context since it will be in parallel state
+        githubUser: any | null
       },
       events: {} as
         | { type: 'project.new' }
@@ -45,7 +47,9 @@ export const voceditMachine = (appState: {
         | { type: 'validation.view.report.close' }
         | { type: 'integration.github.auth' }
         | { type: 'integration.github.auth.profile' }
-        | { type: 'integration.github.auth.logout' },
+        | { type: 'integration.github.auth.profile.close' }
+        | { type: 'integration.github.auth.logout' }
+        | { type: 'integration.github.checking' },
     },
     guards: {},
     actors: {
@@ -179,17 +183,20 @@ export const voceditMachine = (appState: {
 
         try {
           const octokit = new Octokit({ auth: access_token })
-          await octokit.request('GET /user')
+          const user = await octokit.request('GET /user')
+          return {
+            isAuthenticated: true,
+            githubUser: user.data,
+          }
         } catch (err) {
           console.error('Error checking GitHub authentication:', err)
           return {
             isAuthenticated: false,
           }
         }
-
-        return {
-          isAuthenticated: true,
-        }
+      }),
+      gitHubSignIn: fromPromise(async () => {
+        await signIn()
       }),
     },
   }).createMachine({
@@ -198,6 +205,7 @@ export const voceditMachine = (appState: {
     context: {
       ...appState,
       savingError: null,
+      githubUser: null,
     },
     states: {
       // Main app state
@@ -470,16 +478,44 @@ export const voceditMachine = (appState: {
             invoke: {
               id: 'check-github-auth',
               src: 'checkGitHubAuth',
-              onDone: {
-                target: 'authenticated',
-                guard: ({ event }) => event.output.isAuthenticated,
-              },
+              onDone: [
+                {
+                  target: 'authenticated',
+                  guard: ({ event }) => event.output.isAuthenticated,
+                  actions: assign({
+                    githubUser: ({ event }) => event.output.githubUser,
+                  }),
+                },
+                {
+                  target: 'unauthenticated',
+                  actions: assign({
+                    githubUser: null,
+                  }),
+                },
+              ],
               onError: {
                 target: 'unauthenticated',
               },
             },
           },
           authenticated: {
+            initial: 'empty',
+            states: {
+              profile: {
+                on: {
+                  'integration.github.auth.profile.close': {
+                    target: 'empty',
+                  },
+                },
+              },
+              empty: {
+                on: {
+                  'integration.github.auth.profile': {
+                    target: 'profile',
+                  },
+                },
+              },
+            },
             on: {
               'integration.github.auth.logout': {
                 target: 'unauthenticated',
@@ -493,18 +529,16 @@ export const voceditMachine = (appState: {
             on: {
               'integration.github.auth': {
                 target: 'authenticating',
-                actions: () => {
-                  // This would trigger the GitHub OAuth flow
-                  // You might want to use an actor for this
-                },
               },
+              'integration.github.checking': {
+                target: 'checking',
+              }
             },
           },
           authenticating: {
-            on: {
-              'integration.github.auth.profile': {
-                target: 'authenticated',
-              },
+            invoke: {
+              id: 'github-sign-in',
+              src: 'gitHubSignIn',
             },
           },
         },

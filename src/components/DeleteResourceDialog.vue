@@ -13,7 +13,7 @@ import { useVocEditMachine } from '@/composables/vocedit-machine'
 
 const { snapshot, send } = useVocEditMachine()
 
-const isOpen = computed(() => snapshot.value.matches({ opened: 'deleteResourceDialog' }))
+const isOpen = computed(() => snapshot.value.matches({ app: { opened: 'deleteResourceDialog' } }))
 const resourceToDelete = computed(() => snapshot.value.context.resourceToDelete)
 
 const handleConfirm = () => {
