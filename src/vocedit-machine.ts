@@ -6,6 +6,7 @@ import { rdf, rdfs, skos } from '@/namespaces'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
 import { prettify } from '@/lib/prettify'
+import { Octokit } from 'octokit'
 
 const { quad } = n3.DataFactory
 
@@ -23,12 +24,14 @@ export const voceditMachine = (appState: {
         resourceToDelete: NamedNode | null
         router: Router
         savingError: string | null
+        // Remove isGitHubAuthenticated from context since it will be in parallel state
       },
       events: {} as
         | { type: 'project.new' }
-        | { type: 'project.open' }
         | { type: 'project.open.file' }
         | { type: 'project.open.file.cancel' }
+        | { type: 'project.open.github' }
+        | { type: 'project.open.github.cancel' }
         | { type: 'project.save' }
         | { type: 'project.save.cancel' }
         | { type: 'project.close' }
@@ -39,7 +42,10 @@ export const voceditMachine = (appState: {
         | { type: 'resource.create.confirm'; data: { type: NamedNode; iri: NamedNode } }
         | { type: 'resource.create.cancel' }
         | { type: 'validation.view.report' }
-        | { type: 'validation.view.report.close' },
+        | { type: 'validation.view.report.close' }
+        | { type: 'integration.github.auth' }
+        | { type: 'integration.github.auth.profile' }
+        | { type: 'integration.github.auth.logout' },
     },
     guards: {},
     actors: {
@@ -163,264 +169,343 @@ export const voceditMachine = (appState: {
           },
         )
       })(),
+      checkGitHubAuth: fromPromise(async () => {
+        const access_token = sessionStorage.getItem('github_access_token')
+        if (!access_token) {
+          return {
+            isAuthenticated: false,
+          }
+        }
+
+        try {
+          const octokit = new Octokit({ auth: access_token })
+          await octokit.request('GET /user')
+        } catch (err) {
+          console.error('Error checking GitHub authentication:', err)
+          return {
+            isAuthenticated: false,
+          }
+        }
+
+        return {
+          isAuthenticated: true,
+        }
+      }),
     },
   }).createMachine({
     id: 'vocedit',
-    initial: 'empty',
+    type: 'parallel', // Enable parallel states
     context: {
       ...appState,
       savingError: null,
     },
     states: {
-      empty: {
-        entry: ({ context }) => context.resourceManager.resetDataGraph(''),
-        on: {
-          'project.new': {
-            target: 'opened',
-            actions: () => toast.success('Project created'),
-          },
-          'project.open': {
-            target: 'opening',
-          },
-        },
-      },
-      opening: {
-        on: {
-          'project.open.file.cancel': {
-            target: 'empty',
-          },
-        },
-        invoke: {
-          id: 'open-project-file',
-          src: 'openProjectFile',
-          input: ({ context }) => ({ resourceManager: context.resourceManager }),
-          onError: {
-            target: 'empty',
-            actions: ({ event }) => {
-              const error = event.error as Error | undefined
-              console.error('Open project error:', error)
-              console.error('Error details:', {
-                message: error?.message,
-                stack: error?.stack,
-                cause: (error as Error & { cause?: unknown })?.cause,
-              })
-
-              if (!error?.message?.includes('aborted')) {
-                toast.error('Failed to open project', {
-                  description: error?.message,
-                })
-              }
-            },
-          },
-          onDone: {
-            target: 'opened',
-            actions: [
-              () => toast.success('Project opened'),
-              assign({
-                fileHandle: ({ event }) => event.output.fileHandle,
-              }),
-            ],
-          },
-        },
-      },
-      opened: {
-        initial: 'idle',
-        on: {
-          'project.close': {
-            target: 'empty',
-            actions: [
-              () => toast.success('Project closed'),
-              assign({
-                fileHandle: null,
-              }),
-            ],
-          },
-          'project.save': {
-            target: 'saving',
-          },
-        },
+      // Main app state
+      app: {
+        initial: 'empty',
         states: {
-          idle: {
+          empty: {
+            entry: [({ context }) => context.resourceManager.resetDataGraph('')],
             on: {
-              'resource.delete': {
-                target: 'deleteResourceDialog',
-                actions: assign({
-                  resourceToDelete: ({ event }) => event.resourceIri,
-                }),
+              'project.new': {
+                target: 'opened',
+                actions: () => toast.success('Project created'),
               },
-              'resource.create': [
-                {
-                  target: 'createResourceDialog',
-                  guard: ({ context }) => !context.resourceManager.isEditing.value,
-                },
-                {
-                  guard: () => true,
-                  actions: () => toast.error('Please stop editing before creating a resource'),
-                  target: 'idle',
-                },
-              ],
-              'validation.view.report': {
-                target: 'validationReport',
+              'project.open.file': {
+                target: 'opening',
               },
             },
           },
-          createResourceDialog: {
+          opening: {
             on: {
-              'resource.create.confirm': {
-                target: 'createResource',
-              },
-              'resource.create.cancel': {
-                target: 'idle',
+              'project.open.file.cancel': {
+                target: 'empty',
               },
             },
-          },
-          createResource: {
             invoke: {
-              id: 'create-resource',
-              src: 'createResource',
-              input: ({ context, event }) => ({
-                resourceManager: context.resourceManager,
-                data: (
-                  event as {
-                    type: 'resource.create.confirm'
-                    data: { type: NamedNode; iri: NamedNode }
-                  }
-                ).data,
-              }),
+              id: 'open-project-file',
+              src: 'openProjectFile',
+              input: ({ context }) => ({ resourceManager: context.resourceManager }),
               onError: {
-                target: 'idle',
+                target: 'empty',
                 actions: ({ event }) => {
                   const error = event.error as Error | undefined
-                  console.error('Create resource error:', error)
+                  console.error('Open project error:', error)
                   console.error('Error details:', {
                     message: error?.message,
                     stack: error?.stack,
                     cause: (error as Error & { cause?: unknown })?.cause,
                   })
-                  toast.error(`Failed to create resource: ${error?.message || 'Unknown error'}`)
+
+                  if (!error?.message?.includes('aborted')) {
+                    toast.error('Failed to open project', {
+                      description: error?.message,
+                    })
+                  }
                 },
               },
               onDone: {
-                target: 'idle',
+                target: 'opened',
                 actions: [
-                  () => toast.success('Resource created'),
-                  ({ context, event }) =>
-                    context.router.push('/resource?iri=' + event.output.createdResource.iri.value),
+                  () => toast.success('Project opened'),
+                  assign({
+                    fileHandle: ({ event }) => event.output.fileHandle,
+                  }),
                 ],
               },
             },
           },
-          deleteResourceDialog: {
+          opened: {
+            initial: 'idle',
             on: {
-              'resource.delete.confirm': {
-                target: 'deleteResource',
+              'project.close': {
+                target: 'empty',
+                actions: [
+                  () => toast.success('Project closed'),
+                  assign({
+                    fileHandle: null,
+                  }),
+                ],
               },
-              'resource.delete.cancel': {
-                target: 'idle',
-                actions: assign({
-                  resourceToDelete: null,
-                }),
+              'project.save': {
+                target: 'saving',
+              },
+            },
+            states: {
+              idle: {
+                on: {
+                  'resource.delete': {
+                    target: 'deleteResourceDialog',
+                    actions: assign({
+                      resourceToDelete: ({ event }) => event.resourceIri,
+                    }),
+                  },
+                  'resource.create': [
+                    {
+                      target: 'createResourceDialog',
+                      guard: ({ context }) => !context.resourceManager.isEditing.value,
+                    },
+                    {
+                      guard: () => true,
+                      actions: () => toast.error('Please stop editing before creating a resource'),
+                      target: 'idle',
+                    },
+                  ],
+                  'validation.view.report': {
+                    target: 'validationReport',
+                  },
+                },
+              },
+              createResourceDialog: {
+                on: {
+                  'resource.create.confirm': {
+                    target: 'createResource',
+                  },
+                  'resource.create.cancel': {
+                    target: 'idle',
+                  },
+                },
+              },
+              createResource: {
+                invoke: {
+                  id: 'create-resource',
+                  src: 'createResource',
+                  input: ({ context, event }) => ({
+                    resourceManager: context.resourceManager,
+                    data: (
+                      event as {
+                        type: 'resource.create.confirm'
+                        data: { type: NamedNode; iri: NamedNode }
+                      }
+                    ).data,
+                  }),
+                  onError: {
+                    target: 'idle',
+                    actions: ({ event }) => {
+                      const error = event.error as Error | undefined
+                      console.error('Create resource error:', error)
+                      console.error('Error details:', {
+                        message: error?.message,
+                        stack: error?.stack,
+                        cause: (error as Error & { cause?: unknown })?.cause,
+                      })
+                      toast.error(`Failed to create resource: ${error?.message || 'Unknown error'}`)
+                    },
+                  },
+                  onDone: {
+                    target: 'idle',
+                    actions: [
+                      () => toast.success('Resource created'),
+                      ({ context, event }) =>
+                        context.router.push(
+                          '/resource?iri=' + event.output.createdResource.iri.value,
+                        ),
+                    ],
+                  },
+                },
+              },
+              deleteResourceDialog: {
+                on: {
+                  'resource.delete.confirm': {
+                    target: 'deleteResource',
+                  },
+                  'resource.delete.cancel': {
+                    target: 'idle',
+                    actions: assign({
+                      resourceToDelete: null,
+                    }),
+                  },
+                },
+              },
+              deleteResource: {
+                invoke: {
+                  id: 'delete-resource',
+                  src: 'deleteResource',
+                  input: ({ context }) => ({
+                    resourceManager: context.resourceManager,
+                    resourceIri: context.resourceToDelete!,
+                  }),
+                  onError: {
+                    target: 'idle',
+                    actions: [
+                      ({ event }) => {
+                        const error = event.error as Error | undefined
+                        console.error('Delete resource error:', error)
+                        console.error('Error details:', {
+                          message: error?.message,
+                          stack: error?.stack,
+                          cause: (error as Error & { cause?: unknown })?.cause,
+                        })
+                        toast.error(
+                          `Failed to delete resource: ${error?.message || 'Unknown error'}`,
+                        )
+                      },
+                      assign({
+                        resourceToDelete: null,
+                      }),
+                    ],
+                  },
+                  onDone: {
+                    target: 'idle',
+                    actions: [
+                      () => toast.success('Resource deleted'),
+                      assign({
+                        resourceToDelete: null,
+                      }),
+                      ({ context, event }) => {
+                        // Check if the deleted resource IRI matches the current route's query parameter
+                        const currentIri = context.router.currentRoute.value.query.iri as string
+                        const deletedResourceIri = event.output.deletedResourceIri
+
+                        if (currentIri === deletedResourceIri) {
+                          context.router.push('/')
+                        }
+                      },
+                    ],
+                  },
+                },
+              },
+              validationReport: {
+                on: {
+                  'validation.view.report.close': {
+                    target: 'idle',
+                  },
+                },
               },
             },
           },
-          deleteResource: {
+          saving: {
+            on: {
+              'project.save.cancel': {
+                target: 'opened',
+                actions: () => toast.error('Save project cancelled'),
+              },
+            },
             invoke: {
-              id: 'delete-resource',
-              src: 'deleteResource',
+              id: 'save-project-file',
+              src: 'saveProjectFile',
               input: ({ context }) => ({
                 resourceManager: context.resourceManager,
-                resourceIri: context.resourceToDelete!,
+                fileHandle: context.fileHandle!,
               }),
               onError: {
-                target: 'idle',
-                actions: [
-                  ({ event }) => {
+                target: 'savingError',
+                actions: assign({
+                  savingError: ({ event }) => {
                     const error = event.error as Error | undefined
-                    console.error('Delete resource error:', error)
+                    const errorMessage = `Failed to save project file: ${error?.message || 'Unknown error'}`
+                    console.error('Save project error:', error)
                     console.error('Error details:', {
                       message: error?.message,
                       stack: error?.stack,
                       cause: (error as Error & { cause?: unknown })?.cause,
                     })
-                    toast.error(`Failed to delete resource: ${error?.message || 'Unknown error'}`)
+                    return errorMessage
                   },
-                  assign({
-                    resourceToDelete: null,
-                  }),
-                ],
+                }),
               },
               onDone: {
-                target: 'idle',
-                actions: [
-                  () => toast.success('Resource deleted'),
-                  assign({
-                    resourceToDelete: null,
-                  }),
-                  ({ context, event }) => {
-                    // Check if the deleted resource IRI matches the current route's query parameter
-                    const currentIri = context.router.currentRoute.value.query.iri as string
-                    const deletedResourceIri = event.output.deletedResourceIri
-
-                    if (currentIri === deletedResourceIri) {
-                      context.router.push('/')
-                    }
-                  },
-                ],
+                target: 'opened',
+                actions: () => toast.success('Project saved successfully'),
               },
             },
           },
-          validationReport: {
+          savingError: {
             on: {
-              'validation.view.report.close': {
-                target: 'idle',
+              'project.save.cancel': {
+                target: 'opened',
+                actions: assign({
+                  savingError: null,
+                }),
               },
             },
           },
         },
       },
-      saving: {
-        on: {
-          'project.save.cancel': {
-            target: 'opened',
-            actions: () => toast.error('Save project cancelled'),
-          },
-        },
-        invoke: {
-          id: 'save-project-file',
-          src: 'saveProjectFile',
-          input: ({ context }) => ({
-            resourceManager: context.resourceManager,
-            fileHandle: context.fileHandle!,
-          }),
-          onError: {
-            target: 'savingError',
-            actions: assign({
-              savingError: ({ event }) => {
-                const error = event.error as Error | undefined
-                const errorMessage = `Failed to save project file: ${error?.message || 'Unknown error'}`
-                console.error('Save project error:', error)
-                console.error('Error details:', {
-                  message: error?.message,
-                  stack: error?.stack,
-                  cause: (error as Error & { cause?: unknown })?.cause,
-                })
-                return errorMessage
+      // GitHub authentication state (parallel)
+      github: {
+        initial: 'checking',
+        states: {
+          checking: {
+            invoke: {
+              id: 'check-github-auth',
+              src: 'checkGitHubAuth',
+              onDone: {
+                target: 'authenticated',
+                guard: ({ event }) => event.output.isAuthenticated,
               },
-            }),
+              onError: {
+                target: 'unauthenticated',
+              },
+            },
           },
-          onDone: {
-            target: 'opened',
-            actions: () => toast.success('Project saved successfully'),
+          authenticated: {
+            on: {
+              'integration.github.auth.logout': {
+                target: 'unauthenticated',
+                actions: () => {
+                  sessionStorage.removeItem('github_access_token')
+                },
+              },
+            },
           },
-        },
-      },
-      savingError: {
-        on: {
-          'project.save.cancel': {
-            target: 'opened',
-            actions: assign({
-              savingError: null,
-            }),
+          unauthenticated: {
+            on: {
+              'integration.github.auth': {
+                target: 'authenticating',
+                actions: () => {
+                  // This would trigger the GitHub OAuth flow
+                  // You might want to use an actor for this
+                },
+              },
+            },
+          },
+          authenticating: {
+            on: {
+              'integration.github.auth.profile': {
+                target: 'authenticated',
+              },
+            },
           },
         },
       },

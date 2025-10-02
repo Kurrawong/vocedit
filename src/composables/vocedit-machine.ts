@@ -11,7 +11,12 @@ const VOCEDIT_MACHINE_KEY = Symbol('vocedit-machine')
 
 export function createVocEditMachine(resourceManager: CreateResourceManagerReturn, router: Router) {
   const machine = useMachine(
-    voceditMachine({ resourceManager, fileHandle: null, resourceToDelete: null, router }),
+    voceditMachine({
+      resourceManager,
+      fileHandle: null,
+      resourceToDelete: null,
+      router,
+    }),
   )
   provide(VOCEDIT_MACHINE_KEY, machine)
 
