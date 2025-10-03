@@ -1,226 +1,28 @@
-import { showOpenFilePicker } from 'show-open-file-picker'
-import { assign, fromPromise, setup } from 'xstate'
+import { assign } from 'xstate'
 import { toast } from 'vue-sonner'
-import n3, { type NamedNode } from 'n3'
-import { rdf, rdfs, skos } from '@/namespaces'
+import { type NamedNode } from 'n3'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
-import { prettify } from '@/lib/prettify'
-import { Octokit } from 'octokit'
-import { signIn } from '@/github'
 import type { GitHubUser } from '@/github'
+import { machineSetup } from '@/state/base-machine'
+import { githubStates } from '@/state/github-machine'
 
-const { quad } = n3.DataFactory
-
-export const voceditMachine = (appState: {
+export function voceditMachine(appState: {
   resourceManager: CreateResourceManagerReturn
   fileHandle: FileSystemFileHandle | null
   resourceToDelete: NamedNode | null
   router: Router
   githubUser: GitHubUser | null
-}) =>
-  setup({
-    types: {
-      context: {} as {
-        resourceManager: CreateResourceManagerReturn
-        fileHandle: FileSystemFileHandle | null
-        resourceToDelete: NamedNode | null
-        router: Router
-        savingError: string | null
-        githubUser: GitHubUser | null
-      },
-      events: {} as
-        | { type: 'project.new' }
-        | { type: 'project.open.file' }
-        | { type: 'project.open.file.cancel' }
-        | { type: 'project.open.github' }
-        | { type: 'project.open.github.cancel' }
-        | { type: 'project.save' }
-        | { type: 'project.save.cancel' }
-        | { type: 'project.close' }
-        | { type: 'resource.delete'; resourceIri: NamedNode }
-        | { type: 'resource.delete.confirm' }
-        | { type: 'resource.delete.cancel' }
-        | { type: 'resource.create' }
-        | { type: 'resource.create.confirm'; data: { type: NamedNode; iri: NamedNode } }
-        | { type: 'resource.create.cancel' }
-        | { type: 'validation.view.report' }
-        | { type: 'validation.view.report.close' }
-        | { type: 'integration.github.auth' }
-        | { type: 'integration.github.auth.profile' }
-        | { type: 'integration.github.auth.profile.close' }
-        | { type: 'integration.github.auth.logout' }
-        | { type: 'integration.github.checking' },
-    },
-    guards: {},
-    actors: {
-      openProjectFile: (() => {
-        return fromPromise(
-          async ({ input }: { input: { resourceManager: CreateResourceManagerReturn } }) => {
-            const filePickerOptions = {
-              types: [
-                {
-                  description: 'Turtle (.ttl)',
-                  accept: {
-                    'text/turtle': ['.ttl'],
-                  },
-                },
-              ],
-
-              multiple: false,
-              excludeAcceptAllOption: true,
-            }
-            const [fileHandle] = await showOpenFilePicker(filePickerOptions)
-            const file = await fileHandle.getFile()
-            input.resourceManager.resetDataGraph(await file.text())
-
-            return {
-              fileHandle,
-            }
-          },
-        )
-      })(),
-      saveProjectFile: (() => {
-        return fromPromise(
-          async ({
-            input,
-          }: {
-            input: {
-              resourceManager: CreateResourceManagerReturn
-              fileHandle: FileSystemFileHandle
-            }
-          }) => {
-            const writable = await input.fileHandle.createWritable()
-            const data = await prettify(input.resourceManager.dataGraph.value.toString())
-            await writable.write(data)
-            await writable.close()
-
-            return {
-              fileHandle: input.fileHandle,
-            }
-          },
-        )
-      })(),
-      deleteResource: (() => {
-        return fromPromise(
-          async ({
-            input,
-          }: {
-            input: { resourceManager: CreateResourceManagerReturn; resourceIri: NamedNode }
-          }) => {
-            input.resourceManager.deleteResource(input.resourceIri)
-
-            return {
-              deletedResourceIri: input.resourceIri.value,
-            }
-          },
-        )
-      })(),
-      createResource: (() => {
-        return fromPromise(
-          async ({
-            input,
-          }: {
-            input: {
-              resourceManager: CreateResourceManagerReturn
-              data: { type: NamedNode; iri: NamedNode }
-            }
-          }) => {
-            if (!input.data || !input.data.type || !input.data.iri) {
-              throw new Error('Missing required fields: type and iri are required')
-            }
-
-            if (input.resourceManager.isEditing.value) {
-              input.resourceManager.cancelEditing()
-            }
-
-            // Create the resource
-            if (input.data.type.equals(skos.ConceptScheme)) {
-              // Create a concept scheme
-              const quads = [quad(input.data.iri, rdf.type, input.data.type)]
-              input.resourceManager.dataGraph.value.addQuads(quads)
-            } else {
-              // Create a collection or concept
-              const conceptSchemes = input.resourceManager.dataGraph.value.getSubjects(
-                rdf.type,
-                skos.ConceptScheme,
-                null,
-              )
-              if (conceptSchemes.length === 0) {
-                throw new Error('No concept scheme found')
-              }
-              if (conceptSchemes.length > 1) {
-                throw new Error('Multiple concept schemes found')
-              }
-              const conceptScheme = conceptSchemes[0]
-
-              const quads = [
-                quad(input.data.iri, rdf.type, input.data.type),
-                quad(input.data.iri, skos.inScheme, conceptScheme),
-                quad(input.data.iri, rdfs.isDefinedBy, conceptScheme),
-              ]
-              input.resourceManager.dataGraph.value.addQuads(quads)
-            }
-
-            input.resourceManager.startEditing()
-            input.resourceManager.save()
-
-            return {
-              createdResource: {
-                type: input.data.type,
-                iri: input.data.iri,
-              },
-            }
-          },
-        )
-      })(),
-      checkGitHubAuth: fromPromise(async () => {
-        const access_token = sessionStorage.getItem('github_access_token')
-        if (!access_token) {
-          return {
-            isAuthenticated: false,
-          }
-        }
-        const expires_at = sessionStorage.getItem('github_access_token_expires_at')
-        if (!expires_at) {
-          return {
-            isAuthenticated: false,
-          }
-        }
-        if (Date.now() > parseInt(expires_at)) {
-          return {
-            isAuthenticated: false,
-          }
-        }
-
-        try {
-          const octokit = new Octokit({ auth: access_token })
-          const user = await octokit.request('GET /user')
-          return {
-            isAuthenticated: true,
-            githubUser: user.data,
-          }
-        } catch (err) {
-          console.error('Error checking GitHub authentication:', err)
-          return {
-            isAuthenticated: false,
-          }
-        }
-      }),
-      gitHubSignIn: fromPromise(async () => {
-        await signIn()
-      }),
-    },
-  }).createMachine({
+}) {
+  return machineSetup.createMachine({
     id: 'vocedit',
-    type: 'parallel', // Enable parallel states
+    type: 'parallel',
     context: {
       ...appState,
       savingError: null,
       githubUser: null,
     },
     states: {
-      // Main app state
       app: {
         initial: 'empty',
         states: {
@@ -483,77 +285,7 @@ export const voceditMachine = (appState: {
         },
       },
       // GitHub authentication state (parallel)
-      github: {
-        initial: 'checking',
-        states: {
-          checking: {
-            invoke: {
-              id: 'check-github-auth',
-              src: 'checkGitHubAuth',
-              onDone: [
-                {
-                  target: 'authenticated',
-                  guard: ({ event }) => event.output.isAuthenticated,
-                  actions: assign({
-                    githubUser: ({ event }) => event.output.githubUser as GitHubUser,
-                  }),
-                },
-                {
-                  target: 'unauthenticated',
-                  actions: assign({
-                    githubUser: null,
-                  }),
-                },
-              ],
-              onError: {
-                target: 'unauthenticated',
-              },
-            },
-          },
-          authenticated: {
-            initial: 'empty',
-            states: {
-              profile: {
-                on: {
-                  'integration.github.auth.profile.close': {
-                    target: 'empty',
-                  },
-                },
-              },
-              empty: {
-                on: {
-                  'integration.github.auth.profile': {
-                    target: 'profile',
-                  },
-                },
-              },
-            },
-            on: {
-              'integration.github.auth.logout': {
-                target: 'unauthenticated',
-                actions: () => {
-                  sessionStorage.removeItem('github_access_token')
-                },
-              },
-            },
-          },
-          unauthenticated: {
-            on: {
-              'integration.github.auth': {
-                target: 'authenticating',
-              },
-              'integration.github.checking': {
-                target: 'checking',
-              },
-            },
-          },
-          authenticating: {
-            invoke: {
-              id: 'github-sign-in',
-              src: 'gitHubSignIn',
-            },
-          },
-        },
-      },
+      github: githubStates,
     },
   })
+}

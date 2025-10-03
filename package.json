@@ -76,7 +76,7 @@
     "vee-validate": "^4.15.1",
     "vue-sonner": "^2.0.8",
     "vue3-simple-icons": "^15.6.0",
-    "xstate": "^5.20.2",
+    "xstate": "^5.22.1",
     "zod": "^4.1.11"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import { provide, inject } from 'vue'
 import { useMachine } from '@xstate/vue'
-import { voceditMachine } from '@/vocedit-machine'
+import { voceditMachine } from '@/state/vocedit-machine'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
 
