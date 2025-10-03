@@ -13,7 +13,12 @@ const { quad } = n3.DataFactory
 
 export const machineSetup = setup({
   types: {
-    tags: {} as 'createResourceDialog' | 'validationReport' | 'deleteResourceDialog' | 'saving' | 'savingError',
+    tags: {} as
+      | 'createResourceDialog'
+      | 'validationReport'
+      | 'deleteResourceDialog'
+      | 'saving'
+      | 'savingError',
     context: {} as {
       resourceManager: CreateResourceManagerReturn
       fileHandle: FileSystemFileHandle | null

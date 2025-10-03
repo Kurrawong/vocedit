@@ -307,7 +307,7 @@ export function voceditMachine(appState: {
                     tags: ['savingError'],
                     on: {
                       'project.save.cancel': {
-                        target: '.',
+                        target: 'idle',
                         actions: assign({
                           savingError: null,
                         }),
