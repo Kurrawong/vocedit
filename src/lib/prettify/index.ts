@@ -60,7 +60,7 @@ export function prettify(data: string): Promise<string> {
         pendingMessages.delete(id)
         reject(new Error('Request timeout'))
       }
-    }, 60000) // 60 second timeout
+    }, 20000) // 20 second timeout
 
     currentWorker.postMessage({ id, data })
   })

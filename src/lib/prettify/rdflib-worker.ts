@@ -15,7 +15,7 @@ def prettify(data: str):
     return graph.serialize(format="longturtle", canon=True)
 `
 
-let pyodideReady = (async () => {
+const pyodideReady = (async () => {
   const py = await loadPyodide({
     indexURL: `https://cdn.jsdelivr.net/pyodide/v${pyodideVersion}/full/`,
   })
