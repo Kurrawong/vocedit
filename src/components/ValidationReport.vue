@@ -20,15 +20,21 @@ const { snapshot, send } = useVocEditMachine()
 const isOpen = computed(() => snapshot.value.matches({ app: { opened: 'validationReport' } }))
 const { dataGraph, dataGraphPointer, validator } = useResourceManagerContext()
 const validationReport = ref('')
+const isLoading = ref(false)
 
 async function generateValidationReport() {
   if (!isOpen.value) {
     return
   }
 
+  isLoading.value = true
+  validationReport.value = ''
+
   try {
     validator.value.validationEngine.initReport()
+    console.log('Validating data graph...')
     const result = await validator.value.validate(dataGraphPointer.value)
+    console.log('Writing validation report...')
     const writer = new n3.Writer({
       format: 'text/turtle',
       prefixes: {
@@ -49,12 +55,15 @@ async function generateValidationReport() {
         console.error('Error serializing validation report:', err)
         validationReport.value = 'Error generating validation report'
       } else {
+        console.log('Prettifying validation report...')
         validationReport.value = await prettify(result)
       }
+      isLoading.value = false
     })
   } catch (error) {
     console.error('Error generating validation report:', error)
     validationReport.value = 'Error generating validation report'
+    isLoading.value = false
   }
 }
 
@@ -93,7 +102,13 @@ function handleClose() {
 
       <div class="flex-1 overflow-hidden">
         <div class="h-full overflow-y-auto px-6 py-4">
-          <div v-if="validationReport" class="space-y-4">
+          <div v-if="isLoading" class="flex items-center justify-center h-32 text-muted-foreground">
+            <div class="flex items-center space-x-2">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+              <p class="text-sm">Generating validation report...</p>
+            </div>
+          </div>
+          <div v-else-if="validationReport" class="space-y-4">
             <div class="bg-muted/50 rounded-lg p-4">
               <div class="flex items-center justify-between mb-3">
                 <h3 class="text-sm font-medium text-foreground">Validation Report</h3>
