@@ -8,6 +8,7 @@ import type { Router } from 'vue-router'
 import { prettify } from '@/lib/prettify'
 import { Octokit } from 'octokit'
 import { signIn } from '@/github'
+import type { GitHubUser } from '@/github'
 
 const { quad } = n3.DataFactory
 
@@ -16,7 +17,7 @@ export const voceditMachine = (appState: {
   fileHandle: FileSystemFileHandle | null
   resourceToDelete: NamedNode | null
   router: Router
-  githubUser: any | null
+  githubUser: GitHubUser | null
 }) =>
   setup({
     types: {
@@ -26,7 +27,7 @@ export const voceditMachine = (appState: {
         resourceToDelete: NamedNode | null
         router: Router
         savingError: string | null
-        githubUser: any | null
+        githubUser: GitHubUser | null
       },
       events: {} as
         | { type: 'project.new' }
@@ -176,6 +177,17 @@ export const voceditMachine = (appState: {
       checkGitHubAuth: fromPromise(async () => {
         const access_token = sessionStorage.getItem('github_access_token')
         if (!access_token) {
+          return {
+            isAuthenticated: false,
+          }
+        }
+        const expires_at = sessionStorage.getItem('github_access_token_expires_at')
+        if (!expires_at) {
+          return {
+            isAuthenticated: false,
+          }
+        }
+        if (Date.now() > parseInt(expires_at)) {
           return {
             isAuthenticated: false,
           }
@@ -483,7 +495,7 @@ export const voceditMachine = (appState: {
                   target: 'authenticated',
                   guard: ({ event }) => event.output.isAuthenticated,
                   actions: assign({
-                    githubUser: ({ event }) => event.output.githubUser,
+                    githubUser: ({ event }) => event.output.githubUser as GitHubUser,
                   }),
                 },
                 {
@@ -532,7 +544,7 @@ export const voceditMachine = (appState: {
               },
               'integration.github.checking': {
                 target: 'checking',
-              }
+              },
             },
           },
           authenticating: {

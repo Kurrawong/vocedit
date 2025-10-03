@@ -1,3 +1,21 @@
+export interface GitHubUser {
+  id: number
+  login: string
+  avatar_url: string
+  name: string | null
+  bio: string | null
+  public_repos: number
+  followers: number
+  following: number
+  company: string | null
+  location: string | null
+  blog: string | null
+  twitter_username: string | null
+  html_url: string
+  // Additional properties that might be present in the full response
+  [key: string]: unknown
+}
+
 const CLIENT_ID = 'Iv23liLBJLbc4eJCCmiI'
 const REDIRECT_URI = 'http://localhost:5173/github/auth/callback'
 const GITHUB_TOKEN_ENDPOINT = 'http://localhost:7071/api/github/oauth/access_token'
@@ -70,5 +88,6 @@ export async function exchangeCodeForToken(code: string) {
 
   const data = await response.json()
   sessionStorage.setItem('github_access_token', data.access_token)
+  sessionStorage.setItem('github_access_token_expires_at', data.expires_at)
   return data.access_token
 }

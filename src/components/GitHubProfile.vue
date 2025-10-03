@@ -10,9 +10,16 @@ import {
 } from '@/components/ui/dialog'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { Button } from '@/components/ui/button'
+import type { GitHubUser } from '@/github'
 
 const { snapshot, send } = useVocEditMachine()
-const githubUser = computed(() => snapshot.value.context.githubUser)
+const githubUser = computed(() => {
+  const user = snapshot.value.context.githubUser as GitHubUser | null
+  if (!user) {
+    throw new Error('GitHub user data is not available')
+  }
+  return user
+})
 const isOpen = computed(() => snapshot.value.matches({ github: { authenticated: 'profile' } }))
 
 const handleOpenChange = (open: boolean) => {
