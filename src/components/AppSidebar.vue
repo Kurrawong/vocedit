@@ -74,7 +74,7 @@ const concepts = computed(() => {
 
 <template>
   <Sidebar embedded>
-    <template v-if="snapshot.matches('empty') || snapshot.matches('opening')">
+    <template v-if="snapshot.matches({ app: 'empty' }) || snapshot.matches({ app: 'opening' })">
       <SidebarContent>
         <SidebarGroup class="h-full flex items-center justify-center">
           <span class="text-sm text-muted-foreground italic">No project opened</span>

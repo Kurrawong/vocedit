@@ -16,7 +16,6 @@ import AboutDialog from '@/components/AboutDialog.vue'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { FileCode } from 'lucide-vue-next'
 import { GitHubIcon } from 'vue3-simple-icons'
-import { signIn } from '@/github'
 
 const { snapshot, send } = useVocEditMachine()
 

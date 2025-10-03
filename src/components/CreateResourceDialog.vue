@@ -36,7 +36,7 @@ import n3 from 'n3'
 
 const { snapshot, send } = useVocEditMachine()
 
-const isOpen = computed(() => snapshot.value.matches({ opened: 'createResourceDialog' }))
+const isOpen = computed(() => snapshot.value.matches({ app: { opened: 'createResourceDialog' } }))
 const formError = ref<string | null>(null)
 
 const { namedNode } = n3.DataFactory
