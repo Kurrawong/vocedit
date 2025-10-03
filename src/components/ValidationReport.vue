@@ -17,7 +17,7 @@ import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
 import { prettify } from '@/lib/prettify'
 
 const { snapshot, send } = useVocEditMachine()
-const isOpen = computed(() => snapshot.value.matches({ app: { opened: 'validationReport' } }))
+const isOpen = computed(() => snapshot.value.hasTag('validationReport'))
 const { dataGraph, dataGraphPointer, validator } = useResourceManagerContext()
 const validationReport = ref('')
 const isLoading = ref(false)

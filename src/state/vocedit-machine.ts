@@ -49,6 +49,7 @@ function createOpenedStatesConfig(machineSetup: typeof MachineSetup, on = {}, st
         },
       },
       createResourceDialog: {
+        tags: ['createResourceDialog'],
         on: {
           'resource.create.confirm': {
             target: 'createResource',
@@ -95,6 +96,7 @@ function createOpenedStatesConfig(machineSetup: typeof MachineSetup, on = {}, st
         },
       },
       deleteResourceDialog: {
+        tags: ['deleteResourceDialog'],
         on: {
           'resource.delete.confirm': {
             target: 'deleteResource',
@@ -154,6 +156,7 @@ function createOpenedStatesConfig(machineSetup: typeof MachineSetup, on = {}, st
         },
       },
       validationReport: {
+        tags: ['validationReport'],
         on: {
           'validation.view.report.close': {
             target: 'idle',
@@ -257,6 +260,7 @@ export function voceditMachine(appState: {
                 },
                 {
                   saving: {
+                    tags: ['saving'],
                     on: {
                       'project.save.cancel': {
                         target: '.',
@@ -294,12 +298,13 @@ export function voceditMachine(appState: {
                         }),
                       },
                       onDone: {
-                        target: '.',
+                        target: 'idle',
                         actions: () => toast.success('Project saved successfully'),
                       },
                     },
                   },
                   savingError: {
+                    tags: ['savingError'],
                     on: {
                       'project.save.cancel': {
                         target: '.',
