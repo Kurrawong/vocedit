@@ -5,32 +5,25 @@ import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
 import type { GitHubUser } from '@/github'
 import { machineSetup } from '@/state/base-machine'
+import type { machineSetup as MachineSetup } from '@/state/base-machine'
 import { githubStates } from '@/state/github-machine'
 
-export function voceditMachine(appState: {
-  resourceManager: CreateResourceManagerReturn
-  fileHandle: FileSystemFileHandle | null
-  resourceToDelete: NamedNode | null
-  router: Router
-  githubUser: GitHubUser | null
-}) {
-  const openedStates = machineSetup.createStateConfig({
+/**
+ * Creates a state configuration for the project's opened states.
+ *
+ * @param machineSetup - The setup object to use
+ * @param on - Provide event handlers for 'project.close' and 'project.save'
+ * @param states - Provide states for 'saving' and 'savingError'
+ * @returns A state configuration for the project's opened states
+ */
+function createOpenedStatesConfig(machineSetup: typeof MachineSetup, on = {}, states = {}) {
+  return machineSetup.createStateConfig({
     initial: 'idle',
     on: {
-      'project.close': {
-        target: 'empty',
-        actions: [
-          () => toast.success('Project closed'),
-          assign({
-            fileHandle: null,
-          }),
-        ],
-      },
-      'project.save': {
-        target: 'saving',
-      },
+      ...on,
     },
     states: {
+      ...states,
       idle: {
         on: {
           'resource.delete': {
@@ -169,7 +162,15 @@ export function voceditMachine(appState: {
       },
     },
   })
+}
 
+export function voceditMachine(appState: {
+  resourceManager: CreateResourceManagerReturn
+  fileHandle: FileSystemFileHandle | null
+  resourceToDelete: NamedNode | null
+  router: Router
+  githubUser: GitHubUser | null
+}) {
   return machineSetup.createMachine({
     id: 'vocedit',
     type: 'parallel',
@@ -180,21 +181,22 @@ export function voceditMachine(appState: {
     },
     states: {
       app: {
+        id: 'app',
         initial: 'empty',
         states: {
           empty: {
             entry: [({ context }) => context.resourceManager.resetDataGraph('')],
             on: {
-              'project.new': {
-                target: 'opened',
-                actions: () => toast.success('Project created'),
-              },
+              // 'project.new': {
+              //   target: 'opened',
+              //   actions: () => toast.success('Project created'),
+              // },
               'project.open.file': {
-                target: 'opening',
+                target: 'openingLocalFile',
               },
             },
           },
-          opening: {
+          openingLocalFile: {
             on: {
               'project.open.file.cancel': {
                 target: 'empty',
@@ -223,7 +225,7 @@ export function voceditMachine(appState: {
                 },
               },
               onDone: {
-                target: 'opened',
+                target: 'opened.openedLocalFile',
                 actions: [
                   () => toast.success('Project opened'),
                   assign({
@@ -233,51 +235,82 @@ export function voceditMachine(appState: {
               },
             },
           },
-          opened: openedStates,
-          saving: {
-            on: {
-              'project.save.cancel': {
-                target: 'opened',
-                actions: () => toast.error('Save project cancelled'),
-              },
-            },
-            invoke: {
-              id: 'save-project-file',
-              src: 'saveProjectFile',
-              input: ({ context }) => ({
-                resourceManager: context.resourceManager,
-                fileHandle: context.fileHandle!,
-              }),
-              onError: {
-                target: 'savingError',
-                actions: assign({
-                  savingError: ({ event }) => {
-                    const error = event.error as Error | undefined
-                    const errorMessage = `Failed to save project file: ${error?.message || 'Unknown error'}`
-                    console.error('Save project error:', error)
-                    console.error('Error details:', {
-                      message: error?.message,
-                      stack: error?.stack,
-                      cause: (error as Error & { cause?: unknown })?.cause,
-                    })
-                    return errorMessage
+          opened: {
+            initial: 'empty',
+            states: {
+              empty: {},
+              openedLocalFile: createOpenedStatesConfig(
+                machineSetup,
+                {
+                  'project.close': {
+                    target: '#app.empty',
+                    actions: [
+                      () => toast.success('Project closed'),
+                      assign({
+                        fileHandle: null,
+                      }),
+                    ],
                   },
-                }),
-              },
-              onDone: {
-                target: 'opened',
-                actions: () => toast.success('Project saved successfully'),
-              },
-            },
-          },
-          savingError: {
-            on: {
-              'project.save.cancel': {
-                target: 'opened',
-                actions: assign({
-                  savingError: null,
-                }),
-              },
+                  'project.save': {
+                    target: '.saving',
+                  },
+                },
+                {
+                  saving: {
+                    on: {
+                      'project.save.cancel': {
+                        target: '.',
+                        actions: () => toast.error('Save project cancelled'),
+                      },
+                    },
+                    invoke: {
+                      id: 'save-project-file',
+                      src: 'saveProjectFile',
+                      input: ({
+                        context,
+                      }: {
+                        context: {
+                          resourceManager: CreateResourceManagerReturn
+                          fileHandle: FileSystemFileHandle | null
+                        }
+                      }) => ({
+                        resourceManager: context.resourceManager,
+                        fileHandle: context.fileHandle!,
+                      }),
+                      onError: {
+                        target: 'savingError',
+                        actions: assign({
+                          savingError: ({ event }) => {
+                            const error = event.error as Error | undefined
+                            const errorMessage = `Failed to save project file: ${error?.message || 'Unknown error'}`
+                            console.error('Save project error:', error)
+                            console.error('Error details:', {
+                              message: error?.message,
+                              stack: error?.stack,
+                              cause: (error as Error & { cause?: unknown })?.cause,
+                            })
+                            return errorMessage
+                          },
+                        }),
+                      },
+                      onDone: {
+                        target: '.',
+                        actions: () => toast.success('Project saved successfully'),
+                      },
+                    },
+                  },
+                  savingError: {
+                    on: {
+                      'project.save.cancel': {
+                        target: '.',
+                        actions: assign({
+                          savingError: null,
+                        }),
+                      },
+                    },
+                  },
+                },
+              ),
             },
           },
         },

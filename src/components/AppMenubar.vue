@@ -46,6 +46,8 @@ const handleGitHubSignOut = () => {
 </script>
 
 <template>
+  {{ snapshot.value }}
+  {{ snapshot.context.fileHandle }}
   <Menubar>
     <MenubarMenu>
       <MenubarTrigger>VocEdit</MenubarTrigger>
