@@ -87,7 +87,10 @@ export async function exchangeCodeForToken(code: string) {
   }
 
   const data = await response.json()
+  const expires_in = data.expires_in
+  // Set expiry time to current time + token lifetime - 30 minutes buffer
+  const expires_at = Date.now() + expires_in * 1000 - 30 * 60 * 1000
   sessionStorage.setItem('github_access_token', data.access_token)
-  sessionStorage.setItem('github_access_token_expires_at', data.expires_at)
+  sessionStorage.setItem('github_access_token_expires_at', expires_at.toString())
   return data.access_token
 }

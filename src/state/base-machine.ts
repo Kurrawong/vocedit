@@ -186,6 +186,9 @@ export const machineSetup = setup({
         }
       }
       if (Date.now() > parseInt(expires_at)) {
+        // Token has expired, clear it from storage
+        sessionStorage.removeItem('github_access_token')
+        sessionStorage.removeItem('github_access_token_expires_at')
         return {
           isAuthenticated: false,
         }
@@ -200,6 +203,9 @@ export const machineSetup = setup({
         }
       } catch (err) {
         console.error('Error checking GitHub authentication:', err)
+        // Clear invalid token from storage
+        sessionStorage.removeItem('github_access_token')
+        sessionStorage.removeItem('github_access_token_expires_at')
         return {
           isAuthenticated: false,
         }
