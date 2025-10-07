@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { exchangeCodeForToken } from '@/github'
+import { exchangeCodeForToken, checkGitHubAppInstallation } from '@/github'
 import { toast } from 'vue-sonner'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 
@@ -24,6 +24,7 @@ onMounted(async () => {
     if (code) {
       await exchangeCodeForToken(code)
       toast.success('Successfully signed in to GitHub!')
+      await checkGitHubAppInstallation()
       router.push('/')
     } else {
       toast.error('No authorization code received')

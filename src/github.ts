@@ -16,6 +16,7 @@ export interface GitHubUser {
   [key: string]: unknown
 }
 
+const APP_ID = 2046074
 const CLIENT_ID = 'Iv23liLBJLbc4eJCCmiI'
 const REDIRECT_URI = 'http://localhost:5173/github/auth/callback'
 const GITHUB_TOKEN_ENDPOINT = 'http://localhost:7071/api/github/oauth/access_token'
@@ -93,4 +94,43 @@ export async function exchangeCodeForToken(code: string) {
   sessionStorage.setItem('github_access_token', data.access_token)
   sessionStorage.setItem('github_access_token_expires_at', expires_at.toString())
   return data.access_token
+}
+
+export async function checkGitHubAppInstallation() {
+  const accessToken = sessionStorage.getItem('github_access_token')
+
+  if (!accessToken) {
+    throw new Error('No GitHub access token found. Please sign in first.')
+  }
+
+  try {
+    const response = await fetch('https://api.github.com/user/installations', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to check GitHub app installations')
+    }
+
+    const installations = await response.json()
+    console.log(installations)
+
+    const voceditAppInstalled = installations.installations?.some(
+      (installation: { app_id: number }) => installation.app_id === APP_ID,
+    )
+
+    if (!voceditAppInstalled) {
+      // Redirect to GitHub app installation page
+      window.location.href = 'https://github.com/apps/vocedit/installations/new'
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error checking GitHub app installation:', error)
+    throw error
+  }
 }

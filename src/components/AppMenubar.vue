@@ -43,6 +43,10 @@ const handleGitHubSignIn = () => {
 const handleGitHubSignOut = () => {
   send({ type: 'integration.github.auth.logout' })
 }
+
+const handleGitHubAppConfiguration = () => {
+  window.location.href = 'https://github.com/apps/vocedit/installations/new'
+}
 </script>
 
 <template>
@@ -129,8 +133,11 @@ const handleGitHubSignOut = () => {
             >
               User profile
             </MenubarItem>
+            <MenubarItem v-if="isGitHubAuthenticated" @click="handleGitHubAppConfiguration">
+              GitHub App configuration
+            </MenubarItem>
             <MenubarItem v-if="isGitHubAuthenticated" @click="handleGitHubSignOut">
-              Logout
+              Sign out
             </MenubarItem>
           </MenubarSubContent>
         </MenubarSub>
@@ -143,9 +150,10 @@ const handleGitHubSignOut = () => {
         <MenubarItem @click="send({ type: 'integration.github.auth.profile' })">
           User profile
         </MenubarItem>
-        <MenubarItem @click="handleGitHubSignOut">
-          Logout
+        <MenubarItem v-if="isGitHubAuthenticated" @click="handleGitHubAppConfiguration">
+          GitHub App configuration
         </MenubarItem>
+        <MenubarItem @click="handleGitHubSignOut"> Sign out </MenubarItem>
       </MenubarContent>
     </MenubarMenu>
   </Menubar>
