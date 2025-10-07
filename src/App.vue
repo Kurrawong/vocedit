@@ -32,6 +32,10 @@ const navigationLinks = [
     label: 'VocPub Profile',
     href: 'https://linked.data.gov.au/def/vocpub',
   },
+  {
+    label: 'KurrawongAI Tools',
+    href: 'https://tools.kurrawong.ai',
+  },
 ]
 </script>
 
@@ -41,7 +45,7 @@ const navigationLinks = [
       <div class="flex items-center justify-between gap-4 px-4 py-3 border-b bg-background">
         <img src="/KurrawongAI_350.png" alt="KurrawongAI Logo" class="h-10 w-auto" />
 
-        <nav class="flex items-center gap-2">
+        <nav class="flex items-center gap-2 overflow-x-auto">
           <a
             v-for="link in navigationLinks"
             :key="link.href"
