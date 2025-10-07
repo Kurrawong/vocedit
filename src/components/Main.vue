@@ -5,22 +5,24 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 </script>
 
 <template>
-  <SidebarProvider default-open>
-    <AppSidebar />
-    <SidebarInset class="h-screen flex flex-col overflow-hidden">
-      <slot name="header" />
+  <div class="flex h-svh items-center justify-center relative">
+    <SidebarProvider default-open>
+      <AppSidebar />
+      <SidebarInset class="h-screen flex flex-col overflow-hidden">
+        <slot name="header" />
 
-      <header class="flex h-16 shrink-0 items-center gap-2">
-        <div class="flex items-center gap-2 px-4">
-          <SidebarTrigger class="-ml-1" />
+        <header class="flex h-16 shrink-0 items-center gap-2">
+          <div class="flex items-center gap-2 px-4">
+            <SidebarTrigger class="-ml-1" />
 
-          <Separator orientation="vertical" class="mr-2 h-4" />
+            <Separator orientation="vertical" class="mr-2 h-4" />
+          </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto min-h-0">
+          <slot />
         </div>
-      </header>
-
-      <div class="flex-1 overflow-y-auto min-h-0">
-        <slot />
-      </div>
-    </SidebarInset>
-  </SidebarProvider>
+      </SidebarInset>
+    </SidebarProvider>
+  </div>
 </template>
