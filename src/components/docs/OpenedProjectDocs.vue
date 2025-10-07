@@ -1,12 +1,16 @@
+<script setup lang="ts">
+import { Save, Check, Pencil } from 'lucide-vue-next'
+</script>
+
 <template>
   <div class="max-w-6xl mx-auto px-6 py-12 space-y-15">
     <div class="mb-12 text-center">
-      <h1 class="text-4xl font-bold text-gray-900 mb-4">Managing your vocabulary</h1>
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">Your vocabulary workspace</h1>
     </div>
 
     <div>
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">
-        Manage your concepts, collections, and concept schemes
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 items-center flex gap-2">
+        <Pencil class="inline-block" /> Manage your concepts, collections, and concept schemes
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -68,7 +72,9 @@
     </div>
 
     <div>
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">Validation</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 items-center flex gap-2">
+        <Check class="inline-block" /> Validation
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
@@ -117,7 +123,9 @@
     </div>
 
     <div>
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">Saving your work</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4 items-center flex gap-2">
+        <Save class="inline-block" /> Saving your work
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
