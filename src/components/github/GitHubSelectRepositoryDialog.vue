@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { Button } from '@/components/ui/button'
 import { useOctokit } from '@/composables/octokit'
+import { Input } from '@/components/ui/input'
 
 interface GitHubRepository {
   id: number
@@ -33,9 +34,12 @@ const selectedRepo = ref<GitHubRepository | null>(null)
 const currentPage = ref(1)
 const hasMoreRepos = ref(true)
 const scrollContainer = ref<HTMLElement>()
+const searchQuery = ref('')
+const isSearching = ref(false)
 
 const octokit = useOctokit()
 const PER_PAGE = 30
+const DESCRIPTION_MAX_LENGTH = 70
 
 const loadRepositories = async (page: number = 1, append: boolean = false) => {
   try {
@@ -69,7 +73,7 @@ const loadRepositories = async (page: number = 1, append: boolean = false) => {
 }
 
 const loadMoreRepositories = async () => {
-  if (!hasMoreRepos.value || isLoadingMore.value) return
+  if (!hasMoreRepos.value || isLoadingMore.value || isSearching.value) return
 
   await loadRepositories(currentPage.value + 1, true)
 }
@@ -115,24 +119,82 @@ const handlePointerDownOutside = (event: Event) => {
   event.preventDefault()
 }
 
+const handleEscapeKeyDown = (event: Event) => {
+  event.preventDefault()
+}
+
 const handleNext = () => {
   if (selectedRepo.value) {
     console.log(`Selected repo: ${selectedRepo.value.name}`)
     // TODO: Implement repository selection logic
   }
 }
+
+const searchRepositories = async (query: string) => {
+  if (!query.trim()) {
+    // If search query is empty, reload the paginated listing
+    isSearching.value = false
+    await loadRepositories(1)
+    return
+  }
+
+  try {
+    isLoading.value = true
+    isSearching.value = true
+
+    const response = await octokit.rest.search.repos({
+      q: `user:@me ${query}`,
+      per_page: PER_PAGE,
+      sort: 'updated',
+    })
+
+    // Replace repos entirely with search results
+    repos.value = response.data.items
+    hasMoreRepos.value = false // Search results don't support pagination in the same way
+    currentPage.value = 1
+  } catch (error) {
+    console.error('Error searching repositories:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleSearch = async () => {
+  await searchRepositories(searchQuery.value)
+}
+
+// Watch for changes in search query to handle clearing
+watch(searchQuery, async (newQuery) => {
+  if (!newQuery.trim() && isSearching.value) {
+    // If search query is cleared and we were searching, reload paginated listing
+    isSearching.value = false
+    await loadRepositories(1)
+  }
+})
 </script>
 
 <template>
-  <Dialog :open="isOpen" @update:open="handleOpenChange">
+  <Dialog :open="isOpen" @update:open="handleOpenChange" class="w-[1000px]">
     <DialogContent
       :disable-outside-pointer-events="true"
       @pointer-down-outside="handlePointerDownOutside"
-      class="sm:max-w-[500px] grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]"
+      @escape-key-down="handleEscapeKeyDown"
+      class="grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]"
     >
       <DialogHeader class="p-6 pb-0">
         <DialogTitle>Opening a vocabulary from GitHub</DialogTitle>
         <DialogDescription> Select a GitHub repository to open. </DialogDescription>
+
+        <div class="flex gap-2 mt-4">
+          <Input
+            v-model="searchQuery"
+            placeholder="Search repositories"
+            @keyup.enter="handleSearch"
+            @keyup.escape="() => (searchQuery = '')"
+            class="flex-1"
+          />
+          <Button @click="handleSearch" :disabled="isLoading"> Search </Button>
+        </div>
       </DialogHeader>
 
       <div
@@ -142,7 +204,9 @@ const handleNext = () => {
       >
         <div class="flex flex-col justify-between">
           <div v-if="isLoading" class="flex items-center justify-center py-8">
-            <div class="text-sm text-muted-foreground">Loading repositories...</div>
+            <div class="text-sm text-muted-foreground">
+              {{ isSearching ? 'Searching repositories...' : 'Loading repositories...' }}
+            </div>
           </div>
 
           <div v-else class="space-y-2">
@@ -156,8 +220,9 @@ const handleNext = () => {
               <div class="flex-1 min-w-0">
                 <div class="font-medium text-sm truncate">{{ repo.full_name || repo.name }}</div>
                 <div class="text-xs text-muted-foreground truncate">
-                  <span v-if="repo.description?.length && repo.description?.length > 100"
-                    >{{ repo.description?.slice(0, 100) }}...</span
+                  <span
+                    v-if="repo.description?.length && repo.description?.length > DESCRIPTION_MAX_LENGTH"
+                    >{{ repo.description?.slice(0, DESCRIPTION_MAX_LENGTH) }}...</span
                   >
                   <span v-else>{{ repo.description || 'No description' }}</span>
                 </div>
@@ -181,16 +246,26 @@ const handleNext = () => {
             </div>
 
             <!-- Loading more indicator -->
-            <div v-if="isLoadingMore" class="flex items-center justify-center py-4">
+            <div v-if="isLoadingMore && !isSearching" class="flex items-center justify-center py-4">
               <div class="text-sm text-muted-foreground">Loading more repositories...</div>
             </div>
 
             <!-- End of list indicator -->
             <div
-              v-if="!hasMoreRepos && repos.length > 0"
+              v-if="!hasMoreRepos && repos.length > 0 && !isSearching"
               class="flex items-center justify-center py-4"
             >
               <div class="text-sm text-muted-foreground">No more repositories</div>
+            </div>
+
+            <!-- Search results indicator -->
+            <div
+              v-if="isSearching && repos.length === 0 && !isLoading"
+              class="flex items-center justify-center py-4"
+            >
+              <div class="text-sm text-muted-foreground">
+                No repositories found matching your search
+              </div>
             </div>
           </div>
         </div>

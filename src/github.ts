@@ -57,7 +57,6 @@ export async function signIn() {
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,
-    scope: 'read:user user:email',
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
   })
