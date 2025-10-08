@@ -197,6 +197,9 @@ export function voceditMachine(appState: {
               'project.open.file': {
                 target: 'openingLocalFile',
               },
+              'project.open.github': {
+                target: 'selectGitHubRepository',
+              }
             },
           },
           openingLocalFile: {
@@ -235,6 +238,13 @@ export function voceditMachine(appState: {
                     fileHandle: ({ event }) => event.output.fileHandle,
                   }),
                 ],
+              },
+            },
+          },
+          selectGitHubRepository: {
+            on: {
+              'project.open.github.cancel': {
+                target: 'empty',
               },
             },
           },

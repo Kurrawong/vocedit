@@ -14,11 +14,12 @@ import ValidationReport from '@/components/ValidationReport.vue'
 import SavingDialog from '@/components/SavingDialog.vue'
 import GitHubProfile from '@/components/github/GitHubProfile.vue'
 import { ExternalLink } from 'lucide-vue-next'
+import GitHubSelectRepositoryDialog from '@/components/github/GitHubSelectRepositoryDialog.vue'
 
 const router = useRouter()
 const resourceManager = createResourceManager()
 resourceManager.resetShapesGraph(vocpub)
-createVocEditMachine(resourceManager, router)
+const { snapshot } = createVocEditMachine(resourceManager, router)
 
 const navigationLinks = [
   {
@@ -74,4 +75,5 @@ const navigationLinks = [
   <ValidationReport />
   <SavingDialog />
   <GitHubProfile />
+  <GitHubSelectRepositoryDialog v-if="snapshot.matches({ app: 'selectGitHubRepository' })" />
 </template>
