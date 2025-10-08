@@ -12,7 +12,7 @@ import DeleteResourceDialog from '@/components/DeleteResourceDialog.vue'
 import CreateResourceDialog from '@/components/CreateResourceDialog.vue'
 import ValidationReport from '@/components/ValidationReport.vue'
 import SavingDialog from '@/components/SavingDialog.vue'
-import GitHubProfile from '@/components/GitHubProfile.vue'
+import GitHubProfile from '@/components/github/GitHubProfile.vue'
 import { ExternalLink } from 'lucide-vue-next'
 
 const router = useRouter()
