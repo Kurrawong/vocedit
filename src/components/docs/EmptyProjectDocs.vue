@@ -14,11 +14,11 @@
             class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-bold text-lg mr-3"
             >1</span
           >
-          <h3 class="text-lg font-semibold text-gray-900">Access the Menu</h3>
+          <h3 class="text-lg font-semibold text-gray-900">Access the Project Menu</h3>
         </div>
         <p class="text-gray-600 leading-relaxed">
-          Navigate to the project menu in the menu bar to begin working with your vocabulary
-          projects.
+          Click the <strong>Project</strong> button in the menu bar at the top of the screen. This
+          menu contains options to create or open your vocabulary projects.
         </p>
       </div>
 
@@ -28,11 +28,12 @@
             class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-bold text-lg mr-3"
             >2</span
           >
-          <h3 class="text-lg font-semibold text-gray-900">Create or Open</h3>
+          <h3 class="text-lg font-semibold text-gray-900">Create or Open a Project</h3>
         </div>
         <p class="text-gray-600 leading-relaxed">
-          Start a new project or open an existing one from your local file system or GitHub
-          repository.
+          From the <strong>Project</strong> menu, choose <strong>New</strong> to start a new
+          vocabulary project, or <strong>Open</strong> to load one from your local file system or
+          GitHub repository.
         </p>
       </div>
 
