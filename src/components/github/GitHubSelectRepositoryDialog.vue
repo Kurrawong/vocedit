@@ -40,7 +40,7 @@ const octokit = useOctokit()
 const PER_PAGE = 30
 const DESCRIPTION_MAX_LENGTH = 70
 
-const authenticatedUser = computed(() => snapshot.value.context.github?.user)
+const authenticatedUser = computed(() => snapshot.value.context.githubUser)
 
 const loadOrganizations = async () => {
   try {
@@ -153,7 +153,7 @@ const selectRepo = (repo: GitHubRepository) => {
 }
 
 onMounted(async () => {
-  selectedUserOrg.value = authenticatedUser.value?.login as string
+  selectedUserOrg.value = authenticatedUser.value?.login ?? ''
   await loadRepositories(1)
   await loadOrganizations()
   await nextTick()
@@ -240,7 +240,7 @@ watch(searchQuery, async (newQuery) => {
   }
 
   if (!selectedUserOrg.value) {
-    selectedUserOrg.value = authenticatedUser.value?.login as string
+    selectedUserOrg.value = authenticatedUser.value?.login ?? ''
   }
 })
 

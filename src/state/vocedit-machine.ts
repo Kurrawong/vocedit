@@ -7,6 +7,7 @@ import type { GitHubContext } from '@/state/base-machine'
 import { machineSetup } from '@/state/base-machine'
 import type { machineSetup as MachineSetup } from '@/state/base-machine'
 import { githubStates } from '@/state/github-machine'
+import type { GitHubUser } from '@/github'
 
 /**
  * Creates a state configuration for the project's opened states.
@@ -172,6 +173,7 @@ export function voceditMachine(appState: {
   fileHandle: FileSystemFileHandle | null
   resourceToDelete: NamedNode | null
   router: Router
+  githubUser: GitHubUser | null
   github: GitHubContext | null
 }) {
   return machineSetup.createMachine({
@@ -180,6 +182,7 @@ export function voceditMachine(appState: {
     context: {
       ...appState,
       savingError: null,
+      githubUser: null,
       github: null,
     },
     states: {
@@ -245,10 +248,8 @@ export function voceditMachine(appState: {
             on: {
               'project.open.github.cancel': {
                 target: 'empty',
-                assign: assign({
-                  github: ({ context }) => ({
-                    user: context.github!.user,
-                  }),
+                actions: assign({
+                  github: () => null,
                 }),
               },
               'project.open.github.repository.selected': {
@@ -266,10 +267,8 @@ export function voceditMachine(appState: {
             on: {
               'project.open.github.cancel': {
                 target: 'empty',
-                assign: assign({
-                  github: ({ context }) => ({
-                    user: context.github!.user,
-                  }),
+                actions: assign({
+                  github: () => null,
                 }),
               },
             },

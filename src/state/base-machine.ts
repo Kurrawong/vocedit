@@ -12,8 +12,8 @@ import { signIn } from '@/github'
 const { quad } = n3.DataFactory
 
 export interface GitHubContext {
-  user: GitHubUser
   repository: GitHubRepository | null
+  branch: string | null
 }
 
 export const machineSetup = setup({
@@ -30,6 +30,7 @@ export const machineSetup = setup({
       resourceToDelete: NamedNode | null
       router: Router
       savingError: string | null
+      githubUser: GitHubUser | null
       github: GitHubContext | null
     },
     events: {} as
@@ -184,14 +185,14 @@ export const machineSetup = setup({
       if (!access_token) {
         return {
           isAuthenticated: false,
-          github: null,
+          githubUser: null,
         }
       }
       const expires_at = sessionStorage.getItem('github_access_token_expires_at')
       if (!expires_at) {
         return {
           isAuthenticated: false,
-          github: null,
+          githubUser: null,
         }
       }
       if (Date.now() > parseInt(expires_at)) {
@@ -200,7 +201,7 @@ export const machineSetup = setup({
         sessionStorage.removeItem('github_access_token_expires_at')
         return {
           isAuthenticated: false,
-          github: null,
+          githubUser: null,
         }
       }
 
@@ -209,13 +210,7 @@ export const machineSetup = setup({
         const user = await octokit.request('GET /user')
         return {
           isAuthenticated: true,
-          github: {
-            user: {
-              ...user.data,
-              twitter_username: user.data.twitter_username ?? null,
-            },
-            repository: null,
-          },
+          githubUser: user.data,
         }
       } catch (err) {
         console.error('Error checking GitHub authentication:', err)
@@ -224,7 +219,7 @@ export const machineSetup = setup({
         sessionStorage.removeItem('github_access_token_expires_at')
         return {
           isAuthenticated: false,
-          github: null,
+          githubUser: null,
         }
       }
     }),

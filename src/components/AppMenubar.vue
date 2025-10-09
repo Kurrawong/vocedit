@@ -51,7 +51,7 @@ const handleGitHubAppConfiguration = () => {
 
 <template>
   {{ snapshot.value }}
-  {{ snapshot.context.fileHandle }}
+  <!-- {{ snapshot.context.githubUser }} -->
   <Menubar>
     <MenubarMenu>
       <MenubarTrigger>VocEdit</MenubarTrigger>
