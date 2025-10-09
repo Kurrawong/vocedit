@@ -25,11 +25,11 @@ interface GitHubRepository {
   name: string
   full_name: string
   description: string | null
-  language: string | null
-  stargazers_count: number
-  updated_at: string | null
+  language?: string | null
+  stargazers_count?: number
+  updated_at?: string | null
   html_url: string
-  clone_url: string
+  clone_url?: string
 }
 
 interface GitHubOrganization {
@@ -82,7 +82,11 @@ const loadOrganizations = async () => {
   }
 }
 
-const loadRepositories = async (page: number = 1, append: boolean = false) => {
+const loadOrganizationRepositories = async (
+  orgName: string,
+  page: number = 1,
+  append: boolean = false,
+) => {
   try {
     if (page === 1) {
       isLoading.value = true
@@ -90,11 +94,12 @@ const loadRepositories = async (page: number = 1, append: boolean = false) => {
       isLoadingMore.value = true
     }
 
-    const response = await octokit.rest.repos.listForAuthenticatedUser({
+    const response = await octokit.rest.repos.listForOrg({
+      org: orgName,
       per_page: PER_PAGE,
       page: page,
       sort: 'updated',
-      affiliation: 'owner',
+      type: 'all',
     })
 
     if (append) {
@@ -106,6 +111,45 @@ const loadRepositories = async (page: number = 1, append: boolean = false) => {
     // Check if we have more repositories to load
     hasMoreRepos.value = response.data.length === PER_PAGE
     currentPage.value = page
+  } catch (error) {
+    console.error('Error loading organization repositories:', error)
+  } finally {
+    isLoading.value = false
+    isLoadingMore.value = false
+  }
+}
+
+const loadRepositories = async (page: number = 1, append: boolean = false) => {
+  try {
+    if (page === 1) {
+      isLoading.value = true
+    } else {
+      isLoadingMore.value = true
+    }
+
+    // Check if we're loading repositories for an organization or the authenticated user
+    if (selectedUserOrg.value && selectedUserOrg.value !== authenticatedUser.value?.login) {
+      // Loading organization repositories
+      await loadOrganizationRepositories(selectedUserOrg.value, page, append)
+    } else {
+      // Loading user repositories
+      const response = await octokit.rest.repos.listForAuthenticatedUser({
+        per_page: PER_PAGE,
+        page: page,
+        sort: 'updated',
+        affiliation: 'owner',
+      })
+
+      if (append) {
+        repos.value = [...repos.value, ...response.data]
+      } else {
+        repos.value = response.data
+      }
+
+      // Check if we have more repositories to load
+      hasMoreRepos.value = response.data.length === PER_PAGE
+      currentPage.value = page
+    }
   } catch (error) {
     console.error('Error loading repositories:', error)
   } finally {
@@ -135,6 +179,7 @@ const selectRepo = (repo: GitHubRepository) => {
 }
 
 onMounted(async () => {
+  selectedUserOrg.value = authenticatedUser.value?.login as string
   await loadRepositories(1)
   await loadOrganizations()
   await nextTick()
@@ -226,10 +271,14 @@ watch(searchQuery, async (newQuery) => {
   }
 })
 
-// Watch for changes in selected user/org to trigger new search
+// Watch for changes in selected user/org to trigger reload
 watch(selectedUserOrg, async () => {
   if (searchQuery.value.trim() && isSearching.value) {
+    // If we're searching, re-run the search with the new user/org
     await searchRepositories(searchQuery.value)
+  } else {
+    // If we're in listing mode, reload repositories for the selected user/org
+    await loadRepositories(1)
   }
 })
 </script>
@@ -257,8 +306,7 @@ watch(selectedUserOrg, async () => {
           <Button @click="handleSearch" :disabled="isLoading"> Search </Button>
         </div>
 
-        <!-- GitHub User/Org Select Dropdown - only show when there's a search query -->
-        <div v-if="searchQuery.trim()" class="mt-4">
+        <div class="mt-4">
           <div class="flex items-center gap-2">
             <label class="text-sm font-medium text-muted-foreground">GitHub User/Org:</label>
             <Select v-model="selectedUserOrg" :disabled="isLoadingOrgs">
@@ -332,7 +380,7 @@ watch(selectedUserOrg, async () => {
                   }}</span>
                   <span class="text-xs text-muted-foreground">•</span>
                   <span class="text-xs text-muted-foreground"
-                    >{{ repo.stargazers_count }} stars</span
+                    >{{ repo.stargazers_count || 0 }} stars</span
                   >
                   <span class="text-xs text-muted-foreground">•</span>
                   <span class="text-xs text-muted-foreground"
