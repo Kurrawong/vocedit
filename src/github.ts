@@ -16,6 +16,33 @@ export interface GitHubUser {
   [key: string]: unknown
 }
 
+export interface GitHubRepository {
+  id: number
+  name: string
+  full_name: string
+  description: string | null
+  language?: string | null
+  stargazers_count?: number
+  updated_at?: string | null
+  html_url: string
+  clone_url?: string
+}
+
+export interface GitHubOrganization {
+  id: number
+  login: string
+  avatar_url: string
+  description: string | null
+  node_id: string
+  url: string
+  repos_url: string
+  events_url: string
+  hooks_url: string
+  issues_url: string
+  members_url: string
+  public_members_url: string
+}
+
 const APP_ID = 2046074
 const CLIENT_ID = 'Iv23liLBJLbc4eJCCmiI'
 const REDIRECT_URI = 'http://localhost:5173/github/auth/callback'

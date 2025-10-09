@@ -10,15 +10,15 @@ import {
 } from '@/components/ui/dialog'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { Button } from '@/components/ui/button'
-import type { GitHubUser } from '@/github'
+import type { GitHubContext } from '@/state/base-machine'
 
 const { snapshot, send } = useVocEditMachine()
-const githubUser = computed(() => {
-  const user = snapshot.value.context.githubUser as GitHubUser | null
-  if (!user) {
+const github = computed(() => {
+  const githubContext = snapshot.value.context.github as GitHubContext | null
+  if (!githubContext) {
     throw new Error('GitHub user data is not available')
   }
-  return user
+  return githubContext
 })
 const isOpen = computed(() => snapshot.value.matches({ github: { authenticated: 'profile' } }))
 
@@ -40,16 +40,16 @@ const handleOpenChange = (open: boolean) => {
           <!-- Profile Header -->
           <div class="flex items-center space-x-4">
             <img
-              :src="githubUser.avatar_url"
-              :alt="githubUser.name || githubUser.login"
+              :src="github.user.avatar_url"
+              :alt="github.user.name || github.user.login"
               class="w-16 h-16 rounded-full border-2 border-gray-200"
             />
             <div>
               <h2 class="text-xl font-bold text-gray-900">
-                {{ githubUser.name || githubUser.login }}
+                {{ github.user.name || github.user.login }}
               </h2>
-              <p class="text-sm text-gray-600">@{{ githubUser.login }}</p>
-              <p v-if="githubUser.bio" class="text-sm text-gray-700 mt-1">{{ githubUser.bio }}</p>
+              <p class="text-sm text-gray-600">@{{ github.user.login }}</p>
+              <p v-if="github.user.bio" class="text-sm text-gray-700 mt-1">{{ github.user.bio }}</p>
             </div>
           </div>
 
@@ -57,23 +57,23 @@ const handleOpenChange = (open: boolean) => {
           <div class="grid grid-cols-3 gap-4 py-4 border-t border-b border-gray-200">
             <div class="text-center">
               <div class="text-lg font-semibold text-gray-900">
-                {{ githubUser.public_repos || 0 }}
+                {{ github.user.public_repos || 0 }}
               </div>
               <div class="text-xs text-gray-600">Repositories</div>
             </div>
             <div class="text-center">
-              <div class="text-lg font-semibold text-gray-900">{{ githubUser.followers || 0 }}</div>
+              <div class="text-lg font-semibold text-gray-900">{{ github.user.followers || 0 }}</div>
               <div class="text-xs text-gray-600">Followers</div>
             </div>
             <div class="text-center">
-              <div class="text-lg font-semibold text-gray-900">{{ githubUser.following || 0 }}</div>
+              <div class="text-lg font-semibold text-gray-900">{{ github.user.following || 0 }}</div>
               <div class="text-xs text-gray-600">Following</div>
             </div>
           </div>
 
           <!-- Additional Info -->
           <div class="space-y-2">
-            <div v-if="githubUser.company" class="flex items-center text-sm">
+            <div v-if="github.user.company" class="flex items-center text-sm">
               <svg class="w-4 h-4 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -81,9 +81,9 @@ const handleOpenChange = (open: boolean) => {
                   clip-rule="evenodd"
                 ></path>
               </svg>
-              <span class="text-gray-700">{{ githubUser.company }}</span>
+                <span class="text-gray-700">{{ github.user.company }}</span>
             </div>
-            <div v-if="githubUser.location" class="flex items-center text-sm">
+            <div v-if="github.user.location" class="flex items-center text-sm">
               <svg class="w-4 h-4 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -91,9 +91,9 @@ const handleOpenChange = (open: boolean) => {
                   clip-rule="evenodd"
                 ></path>
               </svg>
-              <span class="text-gray-700">{{ githubUser.location }}</span>
+              <span class="text-gray-700">{{ github.user.location }}</span>
             </div>
-            <div v-if="githubUser.blog" class="flex items-center text-sm">
+            <div v-if="github.user.blog" class="flex items-center text-sm">
               <svg class="w-4 h-4 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -102,27 +102,27 @@ const handleOpenChange = (open: boolean) => {
                 ></path>
               </svg>
               <a
-                :href="githubUser.blog"
+                :href="github.user.blog"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="text-blue-600 hover:text-blue-800 underline"
               >
-                {{ githubUser.blog }}
+                {{ github.user.blog }}
               </a>
             </div>
-            <div v-if="githubUser.twitter_username" class="flex items-center text-sm">
+            <div v-if="github.user.twitter_username" class="flex items-center text-sm">
               <svg class="w-4 h-4 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"
                 ></path>
               </svg>
               <a
-                :href="`https://twitter.com/${githubUser.twitter_username}`"
+                :href="`https://twitter.com/${github.user.twitter_username}`"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="text-blue-600 hover:text-blue-800 underline"
               >
-                @{{ githubUser.twitter_username }}
+                @{{ github.user.twitter_username }}
               </a>
             </div>
           </div>
@@ -130,7 +130,7 @@ const handleOpenChange = (open: boolean) => {
           <!-- GitHub Link -->
           <div class="pt-2">
             <a
-              :href="githubUser.html_url"
+              :href="github.user.html_url"
               target="_blank"
               rel="noopener noreferrer"
               class="inline-flex items-center px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"

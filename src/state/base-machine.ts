@@ -4,12 +4,17 @@ import type { CreateResourceManagerReturn } from '@/types'
 import n3, { type NamedNode } from 'n3'
 import { rdf, rdfs, skos } from '@/namespaces'
 import type { Router } from 'vue-router'
-import type { GitHubUser } from '@/github'
+import type { GitHubUser, GitHubRepository } from '@/github'
 import { prettify } from '@/lib/prettify'
 import { Octokit } from 'octokit'
 import { signIn } from '@/github'
 
 const { quad } = n3.DataFactory
+
+export interface GitHubContext {
+  user: GitHubUser
+  repository: GitHubRepository | null
+}
 
 export const machineSetup = setup({
   types: {
@@ -25,7 +30,7 @@ export const machineSetup = setup({
       resourceToDelete: NamedNode | null
       router: Router
       savingError: string | null
-      githubUser: GitHubUser | null
+      github: GitHubContext | null
     },
     events: {} as
       | { type: 'project.new' }
@@ -33,6 +38,7 @@ export const machineSetup = setup({
       | { type: 'project.open.file.cancel' }
       | { type: 'project.open.github' }
       | { type: 'project.open.github.repository.select' }
+      | { type: 'project.open.github.repository.file.select' }
       | { type: 'project.open.github.cancel' }
       | { type: 'project.save' }
       | { type: 'project.save.cancel' }
@@ -178,12 +184,14 @@ export const machineSetup = setup({
       if (!access_token) {
         return {
           isAuthenticated: false,
+          github: null,
         }
       }
       const expires_at = sessionStorage.getItem('github_access_token_expires_at')
       if (!expires_at) {
         return {
           isAuthenticated: false,
+          github: null,
         }
       }
       if (Date.now() > parseInt(expires_at)) {
@@ -192,6 +200,7 @@ export const machineSetup = setup({
         sessionStorage.removeItem('github_access_token_expires_at')
         return {
           isAuthenticated: false,
+          github: null,
         }
       }
 
@@ -200,7 +209,13 @@ export const machineSetup = setup({
         const user = await octokit.request('GET /user')
         return {
           isAuthenticated: true,
-          githubUser: user.data,
+          github: {
+            user: {
+              ...user.data,
+              twitter_username: user.data.twitter_username ?? null,
+            },
+            repository: null,
+          },
         }
       } catch (err) {
         console.error('Error checking GitHub authentication:', err)
@@ -209,6 +224,7 @@ export const machineSetup = setup({
         sessionStorage.removeItem('github_access_token_expires_at')
         return {
           isAuthenticated: false,
+          github: null,
         }
       }
     }),

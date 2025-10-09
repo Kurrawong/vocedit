@@ -3,7 +3,7 @@ import { toast } from 'vue-sonner'
 import { type NamedNode } from 'n3'
 import type { CreateResourceManagerReturn } from '@/types'
 import type { Router } from 'vue-router'
-import type { GitHubUser } from '@/github'
+import type { GitHubContext } from '@/state/base-machine'
 import { machineSetup } from '@/state/base-machine'
 import type { machineSetup as MachineSetup } from '@/state/base-machine'
 import { githubStates } from '@/state/github-machine'
@@ -172,7 +172,7 @@ export function voceditMachine(appState: {
   fileHandle: FileSystemFileHandle | null
   resourceToDelete: NamedNode | null
   router: Router
-  githubUser: GitHubUser | null
+  github: GitHubContext | null
 }) {
   return machineSetup.createMachine({
     id: 'vocedit',
@@ -180,7 +180,7 @@ export function voceditMachine(appState: {
     context: {
       ...appState,
       savingError: null,
-      githubUser: null,
+      github: null,
     },
     states: {
       app: {
@@ -199,7 +199,7 @@ export function voceditMachine(appState: {
               },
               'project.open.github': {
                 target: 'selectGitHubRepository',
-              }
+              },
             },
           },
           openingLocalFile: {
@@ -245,6 +245,10 @@ export function voceditMachine(appState: {
             on: {
               'project.open.github.cancel': {
                 target: 'empty',
+              },
+              'project.open.github.repository.file.select': {
+                target: 'selectGitHubRepositoryFile',
+                actions: assign({}),
               },
             },
           },

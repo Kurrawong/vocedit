@@ -19,33 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-interface GitHubRepository {
-  id: number
-  name: string
-  full_name: string
-  description: string | null
-  language?: string | null
-  stargazers_count?: number
-  updated_at?: string | null
-  html_url: string
-  clone_url?: string
-}
-
-interface GitHubOrganization {
-  id: number
-  login: string
-  avatar_url: string
-  description: string | null
-  node_id: string
-  url: string
-  repos_url: string
-  events_url: string
-  hooks_url: string
-  issues_url: string
-  members_url: string
-  public_members_url: string
-}
+import type { GitHubRepository, GitHubOrganization } from '@/github'
 
 const { send, snapshot } = useVocEditMachine()
 const isOpen = ref(true)
@@ -66,7 +40,7 @@ const octokit = useOctokit()
 const PER_PAGE = 30
 const DESCRIPTION_MAX_LENGTH = 70
 
-const authenticatedUser = computed(() => snapshot.value.context.githubUser)
+const authenticatedUser = computed(() => snapshot.value.context.github?.user)
 
 const loadOrganizations = async () => {
   try {
@@ -213,7 +187,7 @@ const handleEscapeKeyDown = (event: Event) => {
 
 const handleNext = () => {
   if (selectedRepo.value) {
-    console.log(`Selected repo: ${selectedRepo.value.name}`)
+    console.log(`Selected repo: ${selectedRepo.value.full_name}`)
     // TODO: Implement repository selection logic
   }
 }

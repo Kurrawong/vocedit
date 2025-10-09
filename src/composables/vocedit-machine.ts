@@ -16,7 +16,7 @@ export function createVocEditMachine(resourceManager: CreateResourceManagerRetur
       fileHandle: null,
       resourceToDelete: null,
       router,
-      githubUser: null,
+      github: null,
     }),
   )
   provide(VOCEDIT_MACHINE_KEY, machine)

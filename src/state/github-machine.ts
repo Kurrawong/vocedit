@@ -1,6 +1,5 @@
 import { assign } from 'xstate'
 import { machineSetup } from '@/state/base-machine'
-import type { GitHubUser } from '@/github'
 
 export const githubStates = machineSetup.createStateConfig({
   initial: 'checking',
@@ -14,13 +13,13 @@ export const githubStates = machineSetup.createStateConfig({
             target: 'authenticated',
             guard: ({ event }) => event.output.isAuthenticated,
             actions: assign({
-              githubUser: ({ event }) => event.output.githubUser as GitHubUser,
+              github: ({ event }) => event.output.github,
             }),
           },
           {
             target: 'unauthenticated',
             actions: assign({
-              githubUser: null,
+              github: null,
             }),
           },
         ],
