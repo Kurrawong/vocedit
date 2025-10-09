@@ -252,7 +252,7 @@ export function voceditMachine(appState: {
                 }),
               },
               'project.open.github.repository.selected': {
-                target: 'selectGitHubRepositoryFile',
+                target: 'selectGitHubRepositoryBranch',
                 actions: assign({
                   github: ({ context, event }) => ({
                     ...context.github!,
@@ -262,7 +262,7 @@ export function voceditMachine(appState: {
               },
             },
           },
-          selectGitHubRepositoryFile: {
+          selectGitHubRepositoryBranch: {
             on: {
               'project.open.github.cancel': {
                 target: 'empty',

@@ -28,6 +28,14 @@ export interface GitHubRepository {
   clone_url?: string
 }
 
+export interface GitHubRepositoryFile {
+  name: string
+  path: string
+  sha: string
+  size: number
+  url: string
+}
+
 export interface GitHubOrganization {
   id: number
   login: string
