@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
+import { onMounted, onUnmounted, ref, nextTick, watch, computed } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,13 @@ import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { Button } from '@/components/ui/button'
 import { useOctokit } from '@/composables/octokit'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface GitHubRepository {
   id: number
@@ -25,7 +32,22 @@ interface GitHubRepository {
   clone_url: string
 }
 
-const { send } = useVocEditMachine()
+interface GitHubOrganization {
+  id: number
+  login: string
+  avatar_url: string
+  description: string | null
+  node_id: string
+  url: string
+  repos_url: string
+  events_url: string
+  hooks_url: string
+  issues_url: string
+  members_url: string
+  public_members_url: string
+}
+
+const { send, snapshot } = useVocEditMachine()
 const isOpen = ref(true)
 const isLoading = ref(false)
 const isLoadingMore = ref(false)
@@ -36,10 +58,29 @@ const hasMoreRepos = ref(true)
 const scrollContainer = ref<HTMLElement>()
 const searchQuery = ref('')
 const isSearching = ref(false)
+const organizations = ref<GitHubOrganization[]>([])
+const selectedUserOrg = ref<string>('')
+const isLoadingOrgs = ref(false)
 
 const octokit = useOctokit()
 const PER_PAGE = 30
 const DESCRIPTION_MAX_LENGTH = 70
+
+const authenticatedUser = computed(() => snapshot.value.context.githubUser)
+
+const loadOrganizations = async () => {
+  try {
+    isLoadingOrgs.value = true
+    const response = await octokit.rest.orgs.listForAuthenticatedUser({
+      per_page: 100,
+    })
+    organizations.value = response.data
+  } catch (error) {
+    console.error('Error loading organizations:', error)
+  } finally {
+    isLoadingOrgs.value = false
+  }
+}
 
 const loadRepositories = async (page: number = 1, append: boolean = false) => {
   try {
@@ -53,6 +94,7 @@ const loadRepositories = async (page: number = 1, append: boolean = false) => {
       per_page: PER_PAGE,
       page: page,
       sort: 'updated',
+      affiliation: 'owner',
     })
 
     if (append) {
@@ -94,6 +136,7 @@ const selectRepo = (repo: GitHubRepository) => {
 
 onMounted(async () => {
   await loadRepositories(1)
+  await loadOrganizations()
   await nextTick()
 
   // Add scroll listener to the scrollable container
@@ -142,8 +185,15 @@ const searchRepositories = async (query: string) => {
     isLoading.value = true
     isSearching.value = true
 
+    let searchQuery = query
+    if (selectedUserOrg.value) {
+      searchQuery = `user:${selectedUserOrg.value} ${query}`
+    } else {
+      searchQuery = `user:@me ${query}`
+    }
+
     const response = await octokit.rest.search.repos({
-      q: `user:@me ${query}`,
+      q: searchQuery,
       per_page: PER_PAGE,
       sort: 'updated',
     })
@@ -170,6 +220,17 @@ watch(searchQuery, async (newQuery) => {
     isSearching.value = false
     await loadRepositories(1)
   }
+
+  if (!selectedUserOrg.value) {
+    selectedUserOrg.value = authenticatedUser.value?.login as string
+  }
+})
+
+// Watch for changes in selected user/org to trigger new search
+watch(selectedUserOrg, async () => {
+  if (searchQuery.value.trim() && isSearching.value) {
+    await searchRepositories(searchQuery.value)
+  }
 })
 </script>
 
@@ -194,6 +255,43 @@ watch(searchQuery, async (newQuery) => {
             class="flex-1"
           />
           <Button @click="handleSearch" :disabled="isLoading"> Search </Button>
+        </div>
+
+        <!-- GitHub User/Org Select Dropdown - only show when there's a search query -->
+        <div v-if="searchQuery.trim()" class="mt-4">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-muted-foreground">GitHub User/Org:</label>
+            <Select v-model="selectedUserOrg" :disabled="isLoadingOrgs">
+              <SelectTrigger class="w-[300px]">
+                <SelectValue placeholder="Select user or organization" />
+              </SelectTrigger>
+              <SelectContent>
+                <!-- Authenticated user option -->
+                <SelectItem
+                  v-if="authenticatedUser"
+                  :value="authenticatedUser.login"
+                  class="flex items-center gap-2"
+                >
+                  <img
+                    :src="authenticatedUser.avatar_url"
+                    :alt="authenticatedUser.login"
+                    class="w-4 h-4 rounded-full"
+                  />
+                  {{ authenticatedUser.login }} (You)
+                </SelectItem>
+                <!-- Organization options -->
+                <SelectItem
+                  v-for="org in organizations"
+                  :key="org.id"
+                  :value="org.login"
+                  class="flex items-center gap-2"
+                >
+                  <img :src="org.avatar_url" :alt="org.login" class="w-4 h-4 rounded-full" />
+                  {{ org.login }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </DialogHeader>
 
@@ -221,7 +319,9 @@ watch(searchQuery, async (newQuery) => {
                 <div class="font-medium text-sm truncate">{{ repo.full_name || repo.name }}</div>
                 <div class="text-xs text-muted-foreground truncate">
                   <span
-                    v-if="repo.description?.length && repo.description?.length > DESCRIPTION_MAX_LENGTH"
+                    v-if="
+                      repo.description?.length && repo.description?.length > DESCRIPTION_MAX_LENGTH
+                    "
                     >{{ repo.description?.slice(0, DESCRIPTION_MAX_LENGTH) }}...</span
                   >
                   <span v-else>{{ repo.description || 'No description' }}</span>
