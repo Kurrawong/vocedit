@@ -245,10 +245,32 @@ export function voceditMachine(appState: {
             on: {
               'project.open.github.cancel': {
                 target: 'empty',
+                assign: assign({
+                  github: ({ context }) => ({
+                    user: context.github!.user,
+                  }),
+                }),
               },
-              'project.open.github.repository.file.select': {
+              'project.open.github.repository.selected': {
                 target: 'selectGitHubRepositoryFile',
-                actions: assign({}),
+                actions: assign({
+                  github: ({ context, event }) => ({
+                    ...context.github!,
+                    repository: event.repository,
+                  }),
+                }),
+              },
+            },
+          },
+          selectGitHubRepositoryFile: {
+            on: {
+              'project.open.github.cancel': {
+                target: 'empty',
+                assign: assign({
+                  github: ({ context }) => ({
+                    user: context.github!.user,
+                  }),
+                }),
               },
             },
           },

@@ -187,8 +187,7 @@ const handleEscapeKeyDown = (event: Event) => {
 
 const handleNext = () => {
   if (selectedRepo.value) {
-    console.log(`Selected repo: ${selectedRepo.value.full_name}`)
-    // TODO: Implement repository selection logic
+    send({ type: 'project.open.github.repository.selected', repository: selectedRepo.value })
   }
 }
 

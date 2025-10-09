@@ -38,7 +38,7 @@ export const machineSetup = setup({
       | { type: 'project.open.file.cancel' }
       | { type: 'project.open.github' }
       | { type: 'project.open.github.repository.select' }
-      | { type: 'project.open.github.repository.file.select' }
+      | { type: 'project.open.github.repository.selected'; repository: GitHubRepository }
       | { type: 'project.open.github.cancel' }
       | { type: 'project.save' }
       | { type: 'project.save.cancel' }
