@@ -16,6 +16,13 @@ export interface GitHubUser {
   [key: string]: unknown
 }
 
+export interface GitHubAppInstallation {
+  id: number
+  app_id: number
+  account: GitHubUser
+  repository_selection: 'all' | 'selected'
+}
+
 export interface GitHubRepository {
   id: number
   name: string

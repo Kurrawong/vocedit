@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { GitHubRepository, GitHubOrganization } from '@/github'
+import type { GitHubRepository, GitHubOrganization, GitHubAppInstallation } from '@/github'
 
 const { send, snapshot } = useVocEditMachine()
 const isOpen = ref(true)
@@ -35,12 +35,51 @@ const isSearching = ref(false)
 const organizations = ref<GitHubOrganization[]>([])
 const selectedUserOrg = ref<string>('')
 const isLoadingOrgs = ref(false)
+const githubAppInstallations = ref<GitHubAppInstallation[]>([])
 
 const octokit = useOctokit()
 const PER_PAGE = 30
 const DESCRIPTION_MAX_LENGTH = 70
 
 const authenticatedUser = computed(() => snapshot.value.context.githubUser)
+const canSearchRepos = computed(() =>
+  githubAppInstallations.value.find(
+    (installation) =>
+      installation.account.login === selectedUserOrg.value &&
+      installation.repository_selection === 'all',
+  ),
+)
+
+onMounted(async () => {
+  await loadGitHubAppInstallations()
+  selectedUserOrg.value = authenticatedUser.value?.login ?? ''
+  await loadRepositories(1)
+  await loadOrganizations()
+  await nextTick()
+
+  if (scrollContainer.value) {
+    scrollContainer.value.addEventListener('scroll', handleScroll)
+  }
+})
+
+onUnmounted(() => {
+  if (scrollContainer.value) {
+    scrollContainer.value.removeEventListener('scroll', handleScroll)
+  }
+})
+
+const loadGitHubAppInstallations = async () => {
+  try {
+    // TODO: add pagination handling for large number of installations
+    const response = await octokit.rest.apps.listInstallationsForAuthenticatedUser({
+      per_page: 100,
+    })
+    const data = response.data as unknown as { installations: GitHubAppInstallation[] }
+    githubAppInstallations.value = data.installations
+  } catch (error) {
+    console.error('Error loading GitHub app installations:', error)
+  }
+}
 
 const loadOrganizations = async () => {
   try {
@@ -56,43 +95,6 @@ const loadOrganizations = async () => {
   }
 }
 
-const loadOrganizationRepositories = async (
-  orgName: string,
-  page: number = 1,
-  append: boolean = false,
-) => {
-  try {
-    if (page === 1) {
-      isLoading.value = true
-    } else {
-      isLoadingMore.value = true
-    }
-
-    const response = await octokit.rest.repos.listForOrg({
-      org: orgName,
-      per_page: PER_PAGE,
-      page: page,
-      sort: 'updated',
-      type: 'all',
-    })
-
-    if (append) {
-      repos.value = [...repos.value, ...response.data]
-    } else {
-      repos.value = response.data
-    }
-
-    // Check if we have more repositories to load
-    hasMoreRepos.value = response.data.length === PER_PAGE
-    currentPage.value = page
-  } catch (error) {
-    console.error('Error loading organization repositories:', error)
-  } finally {
-    isLoading.value = false
-    isLoadingMore.value = false
-  }
-}
-
 const loadRepositories = async (page: number = 1, append: boolean = false) => {
   try {
     if (page === 1) {
@@ -101,29 +103,28 @@ const loadRepositories = async (page: number = 1, append: boolean = false) => {
       isLoadingMore.value = true
     }
 
-    // Check if we're loading repositories for an organization or the authenticated user
-    if (selectedUserOrg.value && selectedUserOrg.value !== authenticatedUser.value?.login) {
-      // Loading organization repositories
-      await loadOrganizationRepositories(selectedUserOrg.value, page, append)
-    } else {
-      // Loading user repositories
-      const response = await octokit.rest.repos.listForAuthenticatedUser({
-        per_page: PER_PAGE,
-        page: page,
-        sort: 'updated',
-        affiliation: 'owner',
-      })
-
-      if (append) {
-        repos.value = [...repos.value, ...response.data]
-      } else {
-        repos.value = response.data
-      }
-
-      // Check if we have more repositories to load
-      hasMoreRepos.value = response.data.length === PER_PAGE
-      currentPage.value = page
+    const installationId = githubAppInstallations.value.find(
+      (installation) => installation.account.login === selectedUserOrg.value,
+    )?.id
+    if (!installationId) {
+      console.error(`No installation ID found for the authenticated user ${selectedUserOrg.value}`)
+      return
     }
+    const response = await octokit.rest.apps.listInstallationReposForAuthenticatedUser({
+      per_page: PER_PAGE,
+      page: page,
+      installation_id: installationId,
+    })
+
+    if (append) {
+      repos.value = [...repos.value, ...response.data.repositories]
+    } else {
+      repos.value = response.data.repositories
+    }
+
+    // Check if we have more repositories to load
+    hasMoreRepos.value = response.data.repositories.length === PER_PAGE
+    currentPage.value = page
   } catch (error) {
     console.error('Error loading repositories:', error)
   } finally {
@@ -151,25 +152,6 @@ const handleScroll = async (event: Event) => {
 const selectRepo = (repo: GitHubRepository) => {
   selectedRepo.value = repo
 }
-
-onMounted(async () => {
-  selectedUserOrg.value = authenticatedUser.value?.login ?? ''
-  await loadRepositories(1)
-  await loadOrganizations()
-  await nextTick()
-
-  // Add scroll listener to the scrollable container
-  if (scrollContainer.value) {
-    scrollContainer.value.addEventListener('scroll', handleScroll)
-  }
-})
-
-// Clean up scroll listener on unmount
-onUnmounted(() => {
-  if (scrollContainer.value) {
-    scrollContainer.value.removeEventListener('scroll', handleScroll)
-  }
-})
 
 const handleOpenChange = (open: boolean) => {
   if (!open) {
@@ -264,20 +246,11 @@ watch(selectedUserOrg, async () => {
       @escape-key-down="handleEscapeKeyDown"
       class="grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]"
     >
-      <DialogHeader class="p-6 pb-0">
-        <DialogTitle>Opening a vocabulary from GitHub</DialogTitle>
-        <DialogDescription> Select a GitHub repository to open. </DialogDescription>
-
-        <div class="flex gap-2 mt-4">
-          <Input
-            v-model="searchQuery"
-            placeholder="Search repositories"
-            @keyup.enter="handleSearch"
-            @keyup.escape="() => (searchQuery = '')"
-            class="flex-1"
-          />
-          <Button @click="handleSearch" :disabled="isLoading"> Search </Button>
-        </div>
+      <DialogHeader class="p-6 pb-0 border border-b-2">
+        <DialogTitle>Open a vocabulary from GitHub</DialogTitle>
+        <DialogDescription>
+          Select a GitHub repository to open under a user/organization.
+        </DialogDescription>
 
         <div class="mt-4">
           <div class="flex items-center gap-2">
@@ -313,6 +286,21 @@ watch(selectedUserOrg, async () => {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div class="flex gap-2 mt-4" :class="{ 'cursor-not-allowed': !canSearchRepos }">
+          <Input
+            v-model="searchQuery"
+            placeholder="Search repositories"
+            @keyup.enter="handleSearch"
+            @keyup.escape="() => (searchQuery = '')"
+            class="flex-1"
+            :disabled="!canSearchRepos"
+          />
+          <Button @click="handleSearch" :disabled="isLoading || !canSearchRepos"> Search </Button>
+        </div>
+        <div v-if="!canSearchRepos" class="text-xs text-muted-foreground">
+          Search is disabled for the current <strong>selected user/organization</strong>.
         </div>
       </DialogHeader>
 
