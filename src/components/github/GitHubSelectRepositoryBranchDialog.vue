@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,38 @@ import {
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { Button } from '@/components/ui/button'
 import { useOctokit } from '@/composables/octokit'
-import type { GitHubRepositoryFile } from '@/github'
+import type { GitHubBranch } from '@/github'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 
 const { send, snapshot } = useVocEditMachine()
 const isOpen = ref(true)
 const isLoading = ref(false)
 const selectedRepo = computed(() => snapshot.value.context.github?.repository)
-const selectedFile = ref<GitHubRepositoryFile | null>(null)
+const owner = computed(() => selectedRepo.value?.owner?.login)
+const repo = computed(() => selectedRepo.value?.name)
 const octokit = useOctokit()
-const PER_PAGE = 30
+const branches = ref<GitHubBranch[]>([])
+const selectedBranch = ref<string>('')
+
+onMounted(async () => {
+  await loadBranches()
+})
+
+async function loadBranches() {
+  isLoading.value = true
+  try {
+    const response = await octokit.rest.repos.listBranches({
+      owner: owner.value!,
+      repo: repo.value!,
+    })
+    branches.value = response.data
+  } catch (error) {
+    console.error('Error loading branches:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const handlePointerDownOutside = (event: Event) => {
   event.preventDefault()
@@ -36,8 +59,8 @@ const handleOpenChange = (open: boolean) => {
 }
 
 const handleNext = () => {
-  if (selectedFile.value) {
-    console.log(selectedFile.value)
+  if (selectedBranch.value) {
+    console.log(selectedBranch.value)
   }
 }
 </script>
@@ -51,23 +74,47 @@ const handleNext = () => {
       class="grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]"
     >
       <DialogHeader class="p-6 pb-0">
-        <DialogTitle>Opening a vocabulary from GitHub</DialogTitle>
-        <DialogDescription> Select a GitHub repository file to open. </DialogDescription>
+        <DialogTitle>Open a vocabulary from GitHub</DialogTitle>
+        <DialogDescription>
+          Create or select a branch to browse the repository
+          <strong
+            ><code>{{ selectedRepo?.full_name }}</code></strong
+          >.
+        </DialogDescription>
       </DialogHeader>
 
-      <div ref="scrollContainer" class="grid gap-4 py-4 overflow-y-auto px-6">
+      <div ref="scrollContainer" class="grid gap-4 pb-4 overflow-y-auto px-6">
         <div class="flex flex-col justify-between">
           <div v-if="isLoading" class="flex items-center justify-center py-8">
-            <div class="text-sm text-muted-foreground">Loading repository files...</div>
+            <div class="text-sm text-muted-foreground">Loading repository branches...</div>
           </div>
 
-          <div v-else class="space-y-2"></div>
+          <div v-else class="space-y-2">
+            <RadioGroup
+              default-value="comfortable"
+              :orientation="'vertical'"
+              v-model="selectedBranch"
+            >
+              <div v-for="branch in branches" :key="branch.name">
+                <div class="flex items-center space-x-2">
+                  <RadioGroupItem
+                    :id="branch.name"
+                    :value="branch.name"
+                    :disabled="branch.protected"
+                  />
+                  <Label :for="branch.name" :class="{ 'text-muted-foreground': branch.protected }"
+                    >{{ branch.name }} <span v-if="branch.protected"> (protected)</span></Label
+                  >
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
         </div>
       </div>
 
       <DialogFooter class="p-6 pt-0">
         <Button variant="secondary" @click="handleOpenChange(false)">Cancel</Button>
-        <Button :disabled="!selectedFile" @click="handleNext">Next</Button>
+        <Button :disabled="!selectedBranch" @click="handleNext">Next</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

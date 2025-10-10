@@ -2,15 +2,15 @@ export interface GitHubUser {
   id: number
   login: string
   avatar_url: string
-  name: string | null
-  bio: string | null
-  public_repos: number
-  followers: number
-  following: number
-  company: string | null
-  location: string | null
-  blog: string | null
-  twitter_username: string | null
+  name?: string | null
+  bio?: string | null
+  public_repos?: number
+  followers?: number
+  following?: number
+  company?: string | null
+  location?: string | null
+  blog?: string | null
+  twitter_username?: string | null
   html_url: string
   // Additional properties that might be present in the full response
   [key: string]: unknown
@@ -33,6 +33,7 @@ export interface GitHubRepository {
   updated_at?: string | null
   html_url: string
   clone_url?: string
+  owner?: GitHubUser | null
 }
 
 export interface GitHubRepositoryFile {
@@ -40,6 +41,17 @@ export interface GitHubRepositoryFile {
   path: string
   sha: string
   size: number
+  url: string
+}
+
+export interface GitHubBranch {
+  name: string
+  commit: GitHubCommit
+  protected: boolean
+}
+
+interface GitHubCommit {
+  sha: string
   url: string
 }
 
@@ -157,7 +169,6 @@ export async function checkGitHubAppInstallation() {
     }
 
     const installations = await response.json()
-    console.log(installations)
 
     const voceditAppInstalled = installations.installations?.some(
       (installation: { app_id: number }) => installation.app_id === APP_ID,
