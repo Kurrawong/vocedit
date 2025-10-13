@@ -240,9 +240,37 @@ export const machineSetup = setup({
           throw new Error('No GitHub access token found. Please sign in first.')
         }
         const octokit = new Octokit({ auth: access_token })
-        const file = await octokit.request(`GET ${input.file.url}`)
+        const file = await octokit.request(`GET ${input.file.url}`, {
+          headers: {
+            'If-None-Match': '',
+          },
+        })
         const data = atob(file.data.content)
         input.resourceManager.resetDataGraph(data)
+      },
+    ),
+    saveProjectGitHubFile: fromPromise(
+      async ({
+        input,
+      }: {
+        input: { resourceManager: CreateResourceManagerReturn; github: GitHubContext }
+      }) => {
+        const access_token = sessionStorage.getItem('github_access_token')
+        if (!access_token) {
+          throw new Error('No GitHub access token found. Please sign in first.')
+        }
+        const octokit = new Octokit({ auth: access_token })
+        const prettifiedData = await prettify(input.resourceManager.dataGraph.value.toString())
+        const content = btoa(prettifiedData)
+        await octokit.rest.repos.createOrUpdateFileContents({
+          owner: input.github.repository!.owner!.login,
+          repo: input.github.repository!.name,
+          branch: input.github.branch!,
+          path: input.github.file!.path,
+          message: 'VocEdit save',
+          content: content,
+          sha: input.github.file!.sha,
+        })
       },
     ),
   },

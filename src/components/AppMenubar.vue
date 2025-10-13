@@ -50,7 +50,7 @@ const handleGitHubAppConfiguration = () => {
 </script>
 
 <template>
-  {{ snapshot.value }}
+  <!-- {{ snapshot.value }} -->
   <!-- {{ snapshot.context.githubUser }} -->
   <Menubar>
     <MenubarMenu>

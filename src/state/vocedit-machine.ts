@@ -330,11 +330,80 @@ export function voceditMachine(appState: {
             initial: 'empty',
             states: {
               empty: {},
-              openedGitHubFile: createOpenedStatesConfig(machineSetup, {
-                'project.close': {
-                  target: '#app.empty',
+              openedGitHubFile: createOpenedStatesConfig(
+                machineSetup,
+                {
+                  'project.close': {
+                    target: '#app.empty',
+                    actions: [
+                      () => toast.success('Project closed'),
+                      assign({
+                        fileHandle: null,
+                      }),
+                    ],
+                  },
+                  'project.save': {
+                    target: '.saving',
+                  },
                 },
-              }),
+                {
+                  saving: {
+                    tags: ['saving'],
+                    on: {
+                      'project.save.cancel': {
+                        target: '.',
+                        actions: () => toast.error('Save project cancelled'),
+                      },
+                    },
+                    invoke: {
+                      id: 'save-project-github-file',
+                      src: 'saveProjectGitHubFile',
+                      input: ({
+                        context,
+                      }: {
+                        context: {
+                          resourceManager: CreateResourceManagerReturn
+                          github: GitHubContext | null
+                        }
+                      }) => ({
+                        resourceManager: context.resourceManager,
+                        github: context.github!,
+                      }),
+                      onError: {
+                        target: 'savingError',
+                        actions: assign({
+                          savingError: ({ event }) => {
+                            const error = event.error as Error | undefined
+                            const errorMessage = `Failed to save project file: ${error?.message || 'Unknown error'}`
+                            console.error('Save project error:', error)
+                            console.error('Error details:', {
+                              message: error?.message,
+                              stack: error?.stack,
+                              cause: (error as Error & { cause?: unknown })?.cause,
+                            })
+                            return errorMessage
+                          },
+                        }),
+                      },
+                      onDone: {
+                        target: 'idle',
+                        actions: () => toast.success('Project saved successfully'),
+                      },
+                    },
+                  },
+                  savingError: {
+                    tags: ['savingError'],
+                    on: {
+                      'project.save.cancel': {
+                        target: 'idle',
+                        actions: assign({
+                          savingError: null,
+                        }),
+                      },
+                    },
+                  },
+                },
+              ),
               openedLocalFile: createOpenedStatesConfig(
                 machineSetup,
                 {
