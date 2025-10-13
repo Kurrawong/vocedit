@@ -42,6 +42,7 @@ export interface GitHubRepositoryFile {
   sha: string
   size: number
   url: string
+  type: 'file' | 'dir'
 }
 
 export interface GitHubBranch {

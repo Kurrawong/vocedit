@@ -271,6 +271,22 @@ export function voceditMachine(appState: {
                   github: () => null,
                 }),
               },
+              'project.open.github.branch.selected': {
+                target: 'selectGitHubRepositoryFile',
+                actions: assign({
+                  github: ({ context, event }) => ({
+                    ...context.github!,
+                    branch: event.branch,
+                  }),
+                }),
+              },
+            },
+          },
+          selectGitHubRepositoryFile: {
+            on: {
+              'project.open.github.cancel': {
+                target: 'empty',
+              },
             },
           },
           opened: {

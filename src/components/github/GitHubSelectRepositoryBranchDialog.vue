@@ -65,7 +65,7 @@ const handleOpenChange = (open: boolean) => {
 
 const handleNext = () => {
   if (selectedBranch.value) {
-    console.log(selectedBranch.value)
+    send({ type: 'project.open.github.branch.selected', branch: selectedBranch.value })
   }
 }
 
