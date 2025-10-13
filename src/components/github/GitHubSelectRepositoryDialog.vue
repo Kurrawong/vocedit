@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { GitHubRepository, GitHubOrganization, GitHubAppInstallation } from '@/github'
+import { Separator } from '@/components/ui/separator'
 
 const { send, snapshot } = useVocEditMachine()
 const isOpen = ref(true)
@@ -246,7 +247,7 @@ watch(selectedUserOrg, async () => {
       @escape-key-down="handleEscapeKeyDown"
       class="grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]"
     >
-      <DialogHeader class="p-6 pb-0 border border-b-2">
+      <DialogHeader class="p-6 pb-0">
         <DialogTitle>Open a vocabulary from GitHub</DialogTitle>
         <DialogDescription>
           Select a GitHub repository to open under a user/organization.
@@ -302,78 +303,84 @@ watch(selectedUserOrg, async () => {
         <div v-if="!canSearchRepos" class="text-xs text-muted-foreground">
           Search is disabled for the current <strong>selected user/organization</strong>.
         </div>
+
+        <Separator class="mt-4" />
       </DialogHeader>
 
-      <div
-        ref="scrollContainer"
-        class="grid gap-4 py-4 overflow-y-auto px-6"
-        @scroll="handleScroll"
-      >
-        <div class="flex flex-col justify-between">
-          <div v-if="isLoading" class="flex items-center justify-center py-8">
-            <div class="text-sm text-muted-foreground">
-              {{ isSearching ? 'Searching repositories...' : 'Loading repositories...' }}
-            </div>
-          </div>
+      <div class="px-6">
+        <h3 class="text-sm font-medium pb-2">Repositories</h3>
 
-          <div v-else class="space-y-2">
-            <div
-              v-for="repo in repos"
-              :key="repo.id"
-              class="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-              :class="{ 'bg-primary/10 border-primary': selectedRepo?.id === repo.id }"
-              @click="selectRepo(repo)"
-            >
-              <div class="flex-1 min-w-0">
-                <div class="font-medium text-sm truncate">{{ repo.full_name || repo.name }}</div>
-                <div class="text-xs text-muted-foreground truncate">
-                  <span
-                    v-if="
-                      repo.description?.length && repo.description?.length > DESCRIPTION_MAX_LENGTH
-                    "
-                    >{{ repo.description?.slice(0, DESCRIPTION_MAX_LENGTH) }}...</span
-                  >
-                  <span v-else>{{ repo.description || 'No description' }}</span>
-                </div>
-                <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-muted-foreground">{{
-                    repo.language || 'No language'
-                  }}</span>
-                  <span class="text-xs text-muted-foreground">•</span>
-                  <span class="text-xs text-muted-foreground"
-                    >{{ repo.stargazers_count || 0 }} stars</span
-                  >
-                  <span class="text-xs text-muted-foreground">•</span>
-                  <span class="text-xs text-muted-foreground"
-                    >Updated {{ new Date(repo.updated_at || '').toLocaleDateString() }}</span
-                  >
-                </div>
-              </div>
-              <div v-if="selectedRepo?.id === repo.id" class="ml-2">
-                <div class="w-2 h-2 bg-primary rounded-full"></div>
-              </div>
-            </div>
-
-            <!-- Loading more indicator -->
-            <div v-if="isLoadingMore && !isSearching" class="flex items-center justify-center py-4">
-              <div class="text-sm text-muted-foreground">Loading more repositories...</div>
-            </div>
-
-            <!-- End of list indicator -->
-            <div
-              v-if="!hasMoreRepos && repos.length > 0 && !isSearching"
-              class="flex items-center justify-center py-4"
-            >
-              <div class="text-sm text-muted-foreground">No more repositories</div>
-            </div>
-
-            <!-- Search results indicator -->
-            <div
-              v-if="isSearching && repos.length === 0 && !isLoading"
-              class="flex items-center justify-center py-4"
-            >
+        <div ref="scrollContainer" class="grid gap-4 pb-4 overflow-y-auto" @scroll="handleScroll">
+          <div class="flex flex-col justify-between">
+            <div v-if="isLoading" class="flex items-center justify-center py-8">
               <div class="text-sm text-muted-foreground">
-                No repositories found matching your search
+                {{ isSearching ? 'Searching repositories...' : 'Loading repositories...' }}
+              </div>
+            </div>
+
+            <div v-else class="space-y-2">
+              <div
+                v-for="repo in repos"
+                :key="repo.id"
+                class="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                :class="{ 'bg-primary/10 border-primary': selectedRepo?.id === repo.id }"
+                @click="selectRepo(repo)"
+              >
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm truncate">{{ repo.full_name || repo.name }}</div>
+                  <div class="text-xs text-muted-foreground truncate">
+                    <span
+                      v-if="
+                        repo.description?.length &&
+                        repo.description?.length > DESCRIPTION_MAX_LENGTH
+                      "
+                      >{{ repo.description?.slice(0, DESCRIPTION_MAX_LENGTH) }}...</span
+                    >
+                    <span v-else>{{ repo.description || 'No description' }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-xs text-muted-foreground">{{
+                      repo.language || 'No language'
+                    }}</span>
+                    <span class="text-xs text-muted-foreground">•</span>
+                    <span class="text-xs text-muted-foreground"
+                      >{{ repo.stargazers_count || 0 }} stars</span
+                    >
+                    <span class="text-xs text-muted-foreground">•</span>
+                    <span class="text-xs text-muted-foreground"
+                      >Updated {{ new Date(repo.updated_at || '').toLocaleDateString() }}</span
+                    >
+                  </div>
+                </div>
+                <div v-if="selectedRepo?.id === repo.id" class="ml-2">
+                  <div class="w-2 h-2 bg-primary rounded-full"></div>
+                </div>
+              </div>
+
+              <!-- Loading more indicator -->
+              <div
+                v-if="isLoadingMore && !isSearching"
+                class="flex items-center justify-center py-4"
+              >
+                <div class="text-sm text-muted-foreground">Loading more repositories...</div>
+              </div>
+
+              <!-- End of list indicator -->
+              <div
+                v-if="!hasMoreRepos && repos.length > 0 && !isSearching"
+                class="flex items-center justify-center py-4"
+              >
+                <div class="text-sm text-muted-foreground">No more repositories</div>
+              </div>
+
+              <!-- Search results indicator -->
+              <div
+                v-if="isSearching && repos.length === 0 && !isLoading"
+                class="flex items-center justify-center py-4"
+              >
+                <div class="text-sm text-muted-foreground">
+                  No repositories found matching your search
+                </div>
               </div>
             </div>
           </div>
