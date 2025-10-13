@@ -287,12 +287,54 @@ export function voceditMachine(appState: {
               'project.open.github.cancel': {
                 target: 'empty',
               },
+              'project.open.github.file.selected': {
+                target: 'loadGitHubFile',
+                actions: assign({
+                  github: ({ context, event }) => ({ ...context.github!, file: event.file }),
+                }),
+              },
+            },
+          },
+          loadGitHubFile: {
+            invoke: {
+              id: 'load-github-file',
+              src: 'loadGitHubFile',
+              input: ({
+                context,
+              }: {
+                context: {
+                  resourceManager: CreateResourceManagerReturn
+                  github: GitHubContext | null
+                }
+              }) => ({
+                resourceManager: context.resourceManager,
+                file: context.github!.file!,
+              }),
+              onError: {
+                target: 'empty',
+                actions: ({ event }) => {
+                  const error = event.error as Error | undefined
+                  console.error('Load GitHub file error:', error)
+                  toast.error('Failed to open project', {
+                    description: error?.message,
+                  })
+                },
+              },
+              onDone: {
+                target: 'opened.openedGitHubFile',
+                actions: () => toast.success('Project opened'),
+              },
             },
           },
           opened: {
             initial: 'empty',
             states: {
               empty: {},
+              openedGitHubFile: createOpenedStatesConfig(machineSetup, {
+                'project.close': {
+                  target: '#app.empty',
+                },
+              }),
               openedLocalFile: createOpenedStatesConfig(
                 machineSetup,
                 {

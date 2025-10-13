@@ -4,7 +4,7 @@ import type { CreateResourceManagerReturn } from '@/types'
 import n3, { type NamedNode } from 'n3'
 import { rdf, rdfs, skos } from '@/namespaces'
 import type { Router } from 'vue-router'
-import type { GitHubUser, GitHubRepository } from '@/github'
+import type { GitHubUser, GitHubRepository, GitHubRepositoryFile } from '@/github'
 import { prettify } from '@/lib/prettify'
 import { Octokit } from 'octokit'
 import { signIn } from '@/github'
@@ -14,6 +14,7 @@ const { quad } = n3.DataFactory
 export interface GitHubContext {
   repository: GitHubRepository | null
   branch: string | null
+  file: GitHubRepositoryFile | null
 }
 
 export const machineSetup = setup({
@@ -41,6 +42,7 @@ export const machineSetup = setup({
       | { type: 'project.open.github.repository.select' }
       | { type: 'project.open.github.repository.selected'; repository: GitHubRepository }
       | { type: 'project.open.github.branch.selected'; branch: string }
+      | { type: 'project.open.github.file.selected'; file: GitHubRepositoryFile }
       | { type: 'project.open.github.cancel' }
       | { type: 'project.save' }
       | { type: 'project.save.cancel' }
@@ -227,5 +229,21 @@ export const machineSetup = setup({
     gitHubSignIn: fromPromise(async () => {
       await signIn()
     }),
+    loadGitHubFile: fromPromise(
+      async ({
+        input,
+      }: {
+        input: { resourceManager: CreateResourceManagerReturn; file: GitHubRepositoryFile }
+      }) => {
+        const access_token = sessionStorage.getItem('github_access_token')
+        if (!access_token) {
+          throw new Error('No GitHub access token found. Please sign in first.')
+        }
+        const octokit = new Octokit({ auth: access_token })
+        const file = await octokit.request(`GET ${input.file.url}`)
+        const data = atob(file.data.content)
+        input.resourceManager.resetDataGraph(data)
+      },
+    ),
   },
 })

@@ -82,7 +82,7 @@ const handleOpenChange = (open: boolean) => {
 
 const handleNext = () => {
   if (selectedFile.value) {
-    console.log(selectedFile.value)
+    send({ type: 'project.open.github.file.selected', file: selectedFile.value })
   }
 }
 </script>
