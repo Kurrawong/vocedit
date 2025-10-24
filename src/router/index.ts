@@ -15,6 +15,11 @@ export const vocEditRoutes: RouteRecordRaw[] = [
     // which is lazy-loaded when the route is visited.
     component: () => import('@/views/ResourceView.vue'),
   },
+  {
+    path: '/github/auth/callback',
+    name: 'github-auth-callback',
+    component: () => import('@/views/GitHubCallback.vue')
+  }
 ]
 
 export const createVocEditRouter = (base: string) => {

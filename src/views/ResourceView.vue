@@ -21,9 +21,9 @@ watch(iri, () => {
 })
 
 watch(
-  () => snapshot.value.matches('opened'),
+  () => snapshot.value.matches({ app: 'opened' }),
   (matches) => {
-    if ((!matches && !iri.value) || snapshot.value.matches('empty')) {
+    if ((!matches && !iri.value) || snapshot.value.matches({ app: 'empty' })) {
       // Only route to home if we are not in the opened state and there is no iri or we are in the empty state
       router.push('/')
     }
