@@ -71,10 +71,10 @@ export interface GitHubOrganization {
   public_members_url: string
 }
 
-const APP_ID = import.meta.env.VOCEDIT_GITHUB_APP_ID
-const CLIENT_ID = import.meta.env.VOCEDIT_GITHUB_CLIENT_ID
-const REDIRECT_URI = import.meta.env.VOCEDIT_GITHUB_REDIRECT_URI
-const GITHUB_TOKEN_ENDPOINT = import.meta.env.VOCEDIT_GITHUB_TOKEN_ENDPOINT
+const APP_ID = import.meta.env.VITE_VOCEDIT_GITHUB_APP_ID
+const CLIENT_ID = import.meta.env.VITE_VOCEDIT_GITHUB_CLIENT_ID
+const REDIRECT_URI = import.meta.env.VITE_VOCEDIT_GITHUB_REDIRECT_URI
+const GITHUB_TOKEN_ENDPOINT = import.meta.env.VITE_VOCEDIT_GITHUB_TOKEN_ENDPOINT
 
 // Generate random string for code verifier
 function generateRandomString(length: number) {
