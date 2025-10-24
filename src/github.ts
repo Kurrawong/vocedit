@@ -71,10 +71,10 @@ export interface GitHubOrganization {
   public_members_url: string
 }
 
-const APP_ID = 2046074
-const CLIENT_ID = 'Iv23liLBJLbc4eJCCmiI'
-const REDIRECT_URI = 'http://localhost:5173/github/auth/callback'
-const GITHUB_TOKEN_ENDPOINT = 'http://localhost:7071/api/github/oauth/access_token'
+const APP_ID = import.meta.env.VOCEDIT_GITHUB_APP_ID
+const CLIENT_ID = import.meta.env.VOCEDIT_GITHUB_CLIENT_ID
+const REDIRECT_URI = import.meta.env.VOCEDIT_GITHUB_REDIRECT_URI
+const GITHUB_TOKEN_ENDPOINT = import.meta.env.VOCEDIT_GITHUB_TOKEN_ENDPOINT
 
 // Generate random string for code verifier
 function generateRandomString(length: number) {
