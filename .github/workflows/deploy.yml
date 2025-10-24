@@ -27,10 +27,10 @@ jobs:
       - name: Build main project
         env:
           VITE_BUILD_COMMIT: ${{ github.sha }}
-          VOCEDIT_GITHUB_APP_ID: ${{ vars.VOCEDIT_GITHUB_APP_ID }}
-          VOCEDIT_GITHUB_CLIENT_ID: ${{ vars.VOCEDIT_GITHUB_CLIENT_ID }}
-          VOCEDIT_GITHUB_REDIRECT_URI: ${{ vars.VOCEDIT_GITHUB_REDIRECT_URI }}
-          VOCEDIT_GITHUB_TOKEN_ENDPOINT: ${{ vars.VOCEDIT_GITHUB_TOKEN_ENDPOINT }}
+          VITE_VOCEDIT_GITHUB_APP_ID: ${{ vars.VOCEDIT_GITHUB_APP_ID }}
+          VITE_VOCEDIT_GITHUB_CLIENT_ID: ${{ vars.VOCEDIT_GITHUB_CLIENT_ID }}
+          VITE_VOCEDIT_GITHUB_REDIRECT_URI: ${{ vars.VOCEDIT_GITHUB_REDIRECT_URI }}
+          VITE_VOCEDIT_GITHUB_TOKEN_ENDPOINT: ${{ vars.VOCEDIT_GITHUB_TOKEN_ENDPOINT }}
         run: pnpm build-only
 
       - name: Upload static files as artifact
