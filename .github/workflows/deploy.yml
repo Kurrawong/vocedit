@@ -27,7 +27,6 @@ jobs:
       - name: Build main project
         env:
           VITE_BUILD_COMMIT: ${{ github.sha }}
-          VITE_VOCEDIT_GITHUB_APP_ID: ${{ vars.VOCEDIT_GITHUB_APP_ID }}
           VITE_VOCEDIT_GITHUB_CLIENT_ID: ${{ vars.VOCEDIT_GITHUB_CLIENT_ID }}
           VITE_VOCEDIT_GITHUB_REDIRECT_URI: ${{ vars.VOCEDIT_GITHUB_REDIRECT_URI }}
           VITE_VOCEDIT_GITHUB_TOKEN_ENDPOINT: ${{ vars.VOCEDIT_GITHUB_TOKEN_ENDPOINT }}
