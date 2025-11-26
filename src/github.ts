@@ -71,7 +71,6 @@ export interface GitHubOrganization {
   public_members_url: string
 }
 
-const APP_ID = import.meta.env.VITE_VOCEDIT_GITHUB_APP_ID
 const CLIENT_ID = import.meta.env.VITE_VOCEDIT_GITHUB_CLIENT_ID
 const REDIRECT_URI = import.meta.env.VITE_VOCEDIT_GITHUB_REDIRECT_URI
 const GITHUB_TOKEN_ENDPOINT = import.meta.env.VITE_VOCEDIT_GITHUB_TOKEN_ENDPOINT
@@ -172,7 +171,7 @@ export async function checkGitHubAppInstallation() {
     const installations = await response.json()
 
     const voceditAppInstalled = installations.installations?.some(
-      (installation: { app_id: number }) => installation.app_id === APP_ID,
+      (installation: { client_id: number }) => installation.client_id === CLIENT_ID,
     )
 
     if (!voceditAppInstalled) {
