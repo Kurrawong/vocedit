@@ -227,15 +227,9 @@ watch(searchQuery, async (newQuery) => {
   }
 })
 
-// Watch for changes in selected user/org to trigger reload
 watch(selectedUserOrg, async () => {
-  if (searchQuery.value.trim() && isSearching.value) {
-    // If we're searching, re-run the search with the new user/org
-    await searchRepositories(searchQuery.value)
-  } else {
-    // If we're in listing mode, reload repositories for the selected user/org
-    await loadRepositories(1)
-  }
+  searchQuery.value = ''
+  await loadRepositories(1)
 })
 </script>
 
