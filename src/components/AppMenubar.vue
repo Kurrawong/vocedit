@@ -48,7 +48,7 @@ const handleGitHubAppConfiguration = () => {
   window.location.href = 'https://github.com/apps/vocedit/installations/new'
 }
 
-const hasRepository = computed(() => snapshot.value.context.github?.repository !== null)
+const hasRepository = computed(() => snapshot.value.context.github?.repository)
 
 const openRepository = () => {
   const repository = snapshot.value.context.github?.repository
