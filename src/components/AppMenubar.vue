@@ -47,6 +47,20 @@ const handleGitHubSignOut = () => {
 const handleGitHubAppConfiguration = () => {
   window.location.href = 'https://github.com/apps/vocedit/installations/new'
 }
+
+const hasRepository = computed(() => snapshot.value.context.github?.repository !== null)
+
+const openRepository = () => {
+  const repository = snapshot.value.context.github?.repository
+  const branch = snapshot.value.context.github?.branch
+  if (repository?.html_url) {
+    let url = repository.html_url
+    if (branch) {
+      url = `${url}/tree/${branch}`
+    }
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}
 </script>
 
 <template>
@@ -88,6 +102,10 @@ const handleGitHubAppConfiguration = () => {
           @click="send({ type: 'project.save' })"
         >
           Save
+        </MenubarItem>
+        <MenubarItem v-if="hasRepository" @click="openRepository">
+          Repository
+          <ExternalLink class="h-4 w-4" />
         </MenubarItem>
         <MenubarSeparator />
         <MenubarItem
