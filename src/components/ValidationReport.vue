@@ -12,15 +12,19 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { useVocEditMachine } from '@/composables/vocedit-machine'
 import { useResourceManagerContext } from '@kurrawongai/shacl-ui'
 import { prettify } from '@/lib/prettify'
+import ValidationReportPretty from '@/components/ValidationReportPretty.vue'
 
 const { snapshot, send } = useVocEditMachine()
 const isOpen = computed(() => snapshot.value.hasTag('validationReport'))
 const { dataGraph, dataGraphPointer, validator } = useResourceManagerContext()
 const validationReport = ref('')
+const validationDataset = ref<n3.Store | null>(null)
 const isLoading = ref(false)
+const showTurtleView = ref(false)
 
 async function generateValidationReport() {
   if (!isOpen.value) {
@@ -29,11 +33,19 @@ async function generateValidationReport() {
 
   isLoading.value = true
   validationReport.value = ''
+  validationDataset.value = null
 
   try {
     validator.value.validationEngine.initReport()
     console.log('Validating data graph...')
     const result = await validator.value.validate(dataGraphPointer.value)
+    console.log('Storing validation dataset...')
+
+    // Convert dataset to n3.Store for ValidationReportPretty component
+    const store = new n3.Store()
+    store.addQuads(Array.from(result.dataset))
+    validationDataset.value = store
+
     console.log('Writing validation report...')
     const writer = new n3.Writer({
       format: 'text/turtle',
@@ -108,17 +120,33 @@ function handleClose() {
               <p class="text-sm">Generating validation report...</p>
             </div>
           </div>
-          <div v-else-if="validationReport" class="space-y-4">
-            <div class="bg-muted/50 rounded-lg p-4">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-medium text-foreground">Validation Report</h3>
-                <Badge variant="outline" class="text-xs">Turtle</Badge>
-              </div>
-              <pre
-                class="text-xs leading-relaxed font-mono text-muted-foreground bg-background/50 p-3 rounded border overflow-auto"
-                >{{ validationReport }}</pre
-              >
-            </div>
+          <div v-else-if="validationDataset || validationReport" class="space-y-4">
+            <!-- Human-friendly validation results -->
+            <ValidationReportPretty :dataset="validationDataset" />
+
+            <!-- Collapsible Turtle view -->
+            <Collapsible v-if="validationReport" v-model:open="showTurtleView" class="mt-6">
+              <CollapsibleTrigger as-child>
+                <Button variant="outline" class="w-full justify-between">
+                  <span>View RDF Turtle</span>
+                  <span class="text-xs text-muted-foreground">{{
+                    showTurtleView ? 'Hide' : 'Show'
+                  }}</span>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent class="mt-2">
+                <div class="bg-muted/50 rounded-lg p-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium text-foreground">RDF Turtle</h3>
+                    <Badge variant="outline" class="text-xs">Turtle</Badge>
+                  </div>
+                  <pre
+                    class="text-xs leading-relaxed font-mono text-muted-foreground bg-background/50 p-3 rounded border overflow-auto max-h-96"
+                    >{{ validationReport }}</pre
+                  >
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
           <div v-else class="flex items-center justify-center h-32 text-muted-foreground">
             <p class="text-sm">No validation report available</p>
