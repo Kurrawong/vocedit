@@ -556,6 +556,7 @@ BASE <https://linked.data.gov.au/def/vocpub/validator/>
 
 # Some label overrides until VocEdit implement sh:name on a PropertyShape.
 skos:prefLabel rdfs:label "preferred label" .
+skos:inScheme rdfs:label "in scheme" .
 skos:historyNote rdfs:label "history note" .
 owl:versionIRI rdfs:label "version IRI" .
 schema:dateCreated rdfs:label "date created" .
