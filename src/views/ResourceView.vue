@@ -47,12 +47,16 @@ const nodeShape = computed(() => {
 
   return null
 })
+
+function handleSave() {
+  console.log('save')
+}
 </script>
 
 <template>
   <div class="h-full px-6 flex flex-col">
     <div class="flex-1 min-h-0">
-      <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" />
+      <ResourceShell :focus-node="focusNode" :node-shape="nodeShape" @save="handleSave" />
     </div>
   </div>
 </template>
