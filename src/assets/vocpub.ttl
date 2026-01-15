@@ -561,6 +561,23 @@ skos:historyNote rdfs:label "history note" .
 owl:versionIRI rdfs:label "version IRI" .
 schema:dateCreated rdfs:label "date created" .
 schema:dateModified rdfs:label "date modified" .
+rdfs:isDefinedBy rdfs:label "is defined by" .
+prov:qualifiedAttribution rdfs:label "qualified attribution" .
+skos:definition rdfs:label "definition" .
+schema:version rdfs:label "version" .
+schema:creator rdfs:label "creator" .
+schema:publisher rdfs:label "publisher" .
+rdf:type rdfs:label "type" .
+schema:citation rdfs:label "citation" .
+schema:status rdfs:label "status" .
+owl:versionInfo rdfs:label "version info" .
+skos:hasTopConcept rdfs:label "has top concept" .
+skos:topConceptOf rdfs:label "top concept of" .
+skos:broader rdfs:label "broader" .
+skos:narrower rdfs:label "narrower" .
+skos:altLabel rdfs:label "alternative label" .
+skos:exactMatch rdfs:label "exact match" .
+skos:notation rdfs:label "notation" .
 
 <Shui-Concept> a sh:NodeShape ;
     sh:targetClass skos:Concept ;
