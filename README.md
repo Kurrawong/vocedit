@@ -80,6 +80,14 @@ Link the local shacl-ui package.
 pnpm link ~/projects/kurrawong/shacl-ui/shacl-ui
 ```
 
+When changes are made to the shacl-ui package, rebuild the library in shacl-ui.
+
+```sh
+# Running in shacl-ui project
+pnpm build-only
+# The new changes will now be reflected here
+```
+
 Unlink all linked packages.
 
 ```sh

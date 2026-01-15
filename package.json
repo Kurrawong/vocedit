@@ -1,6 +1,6 @@
 {
   "name": "@kurrawongai/vocedit",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": false,
   "type": "module",
   "sideEffects": false,
@@ -57,7 +57,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@kurrawongai/shacl-ui": "^0.4.0",
+    "@kurrawongai/shacl-ui": "0.5.0",
     "@types/rdf-ext": "^2.5.2",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^13.7.0",
